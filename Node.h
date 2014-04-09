@@ -9,12 +9,13 @@
 static int tab=1;
 struct TreeNode{
 	char data[MAXDATA];
+	char sub_data[MAXDATA];
   	int line;
 	int childnum;
 	struct TreeNode* childNode[MAXCHILD];
 };
 struct TreeNode *root;
 void addNodeToParent(struct TreeNode **parent,struct TreeNode *child);
-void CreateNode(struct TreeNode **Node,char* name,int line);
+void CreateNode(struct TreeNode **Node,char* name,char* sub_name,int line);
 void printTree(struct TreeNode* root);
 #endif

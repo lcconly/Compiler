@@ -856,7 +856,7 @@ YY_RULE_SETUP
 {
                                     //printf("SEMI at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"SEMI",yylineno);
+                                    CreateNode(&yylval.Node,"SEMI","",yylineno);
                                     return SEMI;
                                 }
 	YY_BREAK
@@ -866,7 +866,7 @@ YY_RULE_SETUP
 {
                                     //printf("COMMA at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"COMMA",yylineno);
+                                    CreateNode(&yylval.Node,"COMMA","",yylineno);
                                     return COMMA;
                                 }
 	YY_BREAK
@@ -876,7 +876,7 @@ YY_RULE_SETUP
 {
                                     //printf("ASSIGNOP at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"ASSIGNOP",yylineno);
+                                    CreateNode(&yylval.Node,"ASSIGNOP","",yylineno);
                                     return ASSIGNOP;
                                 }
 	YY_BREAK
@@ -887,9 +887,9 @@ YY_RULE_SETUP
                                     //printf("RELOP at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
                                     //strcpy(yylval.type_char,yytext);
-									char str[64]="RELOP: ";
-                                    strcat(str,yytext);
-                                    CreateNode(&yylval.Node,str,yylineno);
+									//char str[64]="RELOP: ";
+                                    //strcat(str,yytext);
+                                    CreateNode(&yylval.Node,"RELOP",yytext,yylineno);
                                     return RELOP;
                                 }
 	YY_BREAK
@@ -899,7 +899,7 @@ YY_RULE_SETUP
 {
                                     //printf("PLUS at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"PLUS",yylineno);
+                                    CreateNode(&yylval.Node,"PLUS","",yylineno);
                                     return PLUS;
                                 }
 	YY_BREAK
@@ -909,7 +909,7 @@ YY_RULE_SETUP
 {
                                     //printf("MINUS at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"MINUS",yylineno);
+                                    CreateNode(&yylval.Node,"MINUS","",yylineno);
                                     return MINUS;
                                 }
 	YY_BREAK
@@ -919,7 +919,7 @@ YY_RULE_SETUP
 {
                                     //printf("STAR at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"STAR",yylineno);
+                                    CreateNode(&yylval.Node,"STAR","",yylineno);
                                     return STAR;
                                 }
 	YY_BREAK
@@ -929,7 +929,7 @@ YY_RULE_SETUP
 {
                                     //printf("DIV at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"DIV",yylineno);
+                                    CreateNode(&yylval.Node,"DIV","",yylineno);
                                     return DIV;
                                 }
 	YY_BREAK
@@ -939,7 +939,7 @@ YY_RULE_SETUP
 {
                                     //printf("AND at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"AND",yylineno);
+                                    CreateNode(&yylval.Node,"AND","",yylineno);
                                     return AND;
                                 }
 	YY_BREAK
@@ -949,7 +949,7 @@ YY_RULE_SETUP
 {
                                     //printf("OR at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"OR",yylineno);
+                                    CreateNode(&yylval.Node,"OR","",yylineno);
                                     return OR;
                                 }
 	YY_BREAK
@@ -959,7 +959,7 @@ YY_RULE_SETUP
 {
                                     //printf("DOT at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"DOT",yylineno);
+                                    CreateNode(&yylval.Node,"DOT","",yylineno);
                                     return DOT;
                                 }
 	YY_BREAK
@@ -969,7 +969,7 @@ YY_RULE_SETUP
 {
                                     //printf("NOT at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"NOT",yylineno);
+                                    CreateNode(&yylval.Node,"NOT","",yylineno);
                                     return NOT;
                                 }
 	YY_BREAK
@@ -980,9 +980,9 @@ YY_RULE_SETUP
                                     //printf("TYPE at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
                                     //strcpy(yylval.type_char,yytext);
-									char str[64]="TYPE: ";
-                                    strcat(str,yytext);
-                                    CreateNode(&yylval.Node,str,yylineno);
+									//char str[64]="TYPE: ";
+                                    //strcat(str,yytext);
+                                    CreateNode(&yylval.Node,"TYPE",yytext,yylineno);
                                     return TYPE;
                                 }
 	YY_BREAK
@@ -992,7 +992,7 @@ YY_RULE_SETUP
 {
                                     //printf("LP at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"LP",yylineno);
+                                    CreateNode(&yylval.Node,"LP","",yylineno);
                                     return LP;
                                 }
 	YY_BREAK
@@ -1002,7 +1002,7 @@ YY_RULE_SETUP
 {
                                     //printf("RP at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"RP",yylineno);
+                                    CreateNode(&yylval.Node,"RP","",yylineno);
                                     return RP;
                                 }
 	YY_BREAK
@@ -1012,7 +1012,7 @@ YY_RULE_SETUP
 {
                                     //printf("LB at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"LB",yylineno);
+                                    CreateNode(&yylval.Node,"LB","",yylineno);
                                     return LB;
                                 }
 	YY_BREAK
@@ -1022,7 +1022,7 @@ YY_RULE_SETUP
 {
                                     //printf("RB at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"RB",yylineno);
+                                    CreateNode(&yylval.Node,"RB","",yylineno);
                                     return RB;
                                 }
 	YY_BREAK
@@ -1032,7 +1032,7 @@ YY_RULE_SETUP
 {
                                     //printf("LC at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"LC",yylineno);
+                                    CreateNode(&yylval.Node,"LC","",yylineno);
                                     return LC;
                                 }
 	YY_BREAK
@@ -1042,7 +1042,7 @@ YY_RULE_SETUP
 {
                                     //printf("RC at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"RC",yylineno);
+                                    CreateNode(&yylval.Node,"RC","",yylineno);
                                     return RC;
                                 }
 	YY_BREAK
@@ -1052,7 +1052,7 @@ YY_RULE_SETUP
 {
                                     //printf("STRUCT at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"STRUCT",yylineno);
+                                    CreateNode(&yylval.Node,"STRUCT","",yylineno);
                                     return STRUCT;
                                 }
 	YY_BREAK
@@ -1062,7 +1062,7 @@ YY_RULE_SETUP
 {
                                     //printf("RETURN at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"RETURN",yylineno);
+                                    CreateNode(&yylval.Node,"RETURN","",yylineno);
                                     return RETURN;
                                 }
 	YY_BREAK
@@ -1072,7 +1072,7 @@ YY_RULE_SETUP
 {
                                     //printf("IF at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"IF",yylineno);
+                                    CreateNode(&yylval.Node,"IF","",yylineno);
                                     return IF;
                                 }
 	YY_BREAK
@@ -1082,7 +1082,7 @@ YY_RULE_SETUP
 {
                                     //printf("ELSE at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"ELSE",yylineno);
+                                    CreateNode(&yylval.Node,"ELSE","",yylineno);
                                     return ELSE;
                                 }
 	YY_BREAK
@@ -1092,7 +1092,7 @@ YY_RULE_SETUP
 {
                                     //printf("WHILE at line %d at column %d\n",yylineno,yycolumn);
                                     //yycolumn+=yyleng;
-                                    CreateNode(&yylval.Node,"WHILE",yylineno);
+                                    CreateNode(&yylval.Node,"WHILE","",yylineno);
                                     return WHILE;
                                 }
 	YY_BREAK
@@ -1103,9 +1103,9 @@ YY_RULE_SETUP
                                     //printf("ID %s at line %d at column %d\n",yytext,yylineno,yycolumn);
                                     //yycolumn+=yyleng;
                                     //strcpy(yylval.type_char,yytext);
-									char str[64]="ID: ";
-                                    strcat(str,yytext);
-                                    CreateNode(&yylval.Node,str,yylineno);
+									//char str[64]="ID: ";
+                                    //strcat(str,yytext);
+                                    CreateNode(&yylval.Node,"ID",yytext,yylineno);
                                     return ID;
                                 }
 	YY_BREAK
@@ -1116,9 +1116,9 @@ YY_RULE_SETUP
                                     //printf("INT %s at line %d at column %d\n",yytext,yylineno,yycolumn);
                                     //yycolumn+=yyleng;
                                     //yylval.type_int=atoi(yytext);
-									char str[64]="INT: ";
-                                    strcat(str,yytext);
-                                    CreateNode(&yylval.Node,str,yylineno);
+									//char str[64]="INT: ";
+                                    //strcat(str,yytext);
+                                    CreateNode(&yylval.Node,"INT",yytext,yylineno);
                                     return INT;
                                 }
 	YY_BREAK
@@ -1129,12 +1129,12 @@ YY_RULE_SETUP
                                     //printf("FLOAT %s at line %d at column %d\n",yytext,yylineno,yycolumn);
                                     //yycolumn+=yyleng;
                                     //yylval.type_float=atof(yytext);
-									char str[64]="FLOAT: ";
+									//char str[64]="FLOAT: ";
 									char str1[64];
 									//ftoa(atof(yytext),str);
 									gcvt(atof(yytext),64,str1);
-									strcat(str,str1);
-                                    CreateNode(&yylval.Node,str,yylineno);
+									//strcat(str,str1);
+                                    CreateNode(&yylval.Node,"FLOAT",str1,yylineno);
                                     return FLOAT;
                                 }
 	YY_BREAK

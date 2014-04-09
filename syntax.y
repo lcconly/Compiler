@@ -53,13 +53,13 @@
 
 %%
 Program			:	ExtDefList					{
-                                                    CreateNode(&$$,"Program",@1.first_line);
+                                                    CreateNode(&$$,"Program","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													root=$$;
                                                 }
 				;
 ExtDefList		:	ExDef ExtDefList			{
-                                                    CreateNode(&$$,"ExtDefList",@1.first_line);
+                                                    CreateNode(&$$,"ExtDefList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
@@ -68,18 +68,18 @@ ExtDefList		:	ExDef ExtDefList			{
                                                 }
 				;
 ExDef			:	Specifier ExtDecList SEMI	{
-													CreateNode(&$$,"ExDef",@1.first_line);
+													CreateNode(&$$,"ExDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Specifier SEMI              {
-                                                    CreateNode(&$$,"ExDef",@1.first_line);
+                                                    CreateNode(&$$,"ExDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }             
                 |	Specifier FunDec CompSt		{
-                                                    CreateNode(&$$,"ExDef",@1.first_line);
+                                                    CreateNode(&$$,"ExDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -89,27 +89,27 @@ ExDef			:	Specifier ExtDecList SEMI	{
                                                 }
 				;
 ExtDecList		:	VarDec						{
-                                                    CreateNode(&$$,"ExtDecList",@1.first_line);
+                                                    CreateNode(&$$,"ExtDecList","",@1.first_line);
 													addNodeToParent(&$$,$1);    
                                                 }
                 |	VarDec COMMA ExtDecList		{
-                                                    CreateNode(&$$,"ExtDecList",@1.first_line);
+                                                    CreateNode(&$$,"ExtDecList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
 				;
 Specifier		:	TYPE						{
-                                                    CreateNode(&$$,"Specifier",@1.first_line);
+                                                    CreateNode(&$$,"Specifier","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	StructSpecifier				{
-                                                    CreateNode(&$$,"Specifier",@1.first_line);
+                                                    CreateNode(&$$,"Specifier","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
 				;
 StructSpecifier	:	STRUCT OptTag LC DefList RC	{
-                                                    CreateNode(&$$,"StructSpecifier",@1.first_line);
+                                                    CreateNode(&$$,"StructSpecifier","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -118,13 +118,13 @@ StructSpecifier	:	STRUCT OptTag LC DefList RC	{
 
                                                 }
                 |	STRUCT Tag                  {
-                                                    CreateNode(&$$,"StructSpecifier",@1.first_line);
+                                                    CreateNode(&$$,"StructSpecifier","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
 				;
 OptTag			:	ID							{
-                                                    CreateNode(&$$,"OptTag",@1.first_line);
+                                                    CreateNode(&$$,"OptTag","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	/*empty*/                   {
@@ -132,16 +132,16 @@ OptTag			:	ID							{
                                                 }
 				;
 Tag				:	ID							{
-                                                    CreateNode(&$$,"Tag",@1.first_line);
+                                                    CreateNode(&$$,"Tag","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
 				;
 VarDec			:	ID							{
-                                                    CreateNode(&$$,"VarDec",@1.first_line);
+                                                    CreateNode(&$$,"VarDec","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	VarDec LB INT RB			{
-                                                    CreateNode(&$$,"VarDec",@1.first_line);
+                                                    CreateNode(&$$,"VarDec","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -149,14 +149,14 @@ VarDec			:	ID							{
                                                 }
 				;
 FunDec			:	ID LP VarList RP			{
-                                                    CreateNode(&$$,"FunDec",@1.first_line);
+                                                    CreateNode(&$$,"FunDec","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
 													addNodeToParent(&$$,$4);
                                                 }
                 |	ID LP RP					{
-                                                    CreateNode(&$$,"FunDec",@1.first_line);
+                                                    CreateNode(&$$,"FunDec","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -166,24 +166,24 @@ FunDec			:	ID LP VarList RP			{
                                                 }
 				;
 VarList			:	ParamDec COMMA VarList		{
-                                                    CreateNode(&$$,"VarList",@1.first_line);
+                                                    CreateNode(&$$,"VarList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	ParamDec					{
-                                                    CreateNode(&$$,"VarList",@1.first_line);   
+                                                    CreateNode(&$$,"VarList","",@1.first_line);   
 													addNodeToParent(&$$,$1);
                                                 }	
                 ;
 ParamDec		:	Specifier VarDec			{
-                                                    CreateNode(&$$,"ParamDec",@1.first_line);   
+                                                    CreateNode(&$$,"ParamDec","",@1.first_line);   
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
 				;
 CompSt			:	LC DefList StmTList RC		{
-                                                    CreateNode(&$$,"CompSt",@1.first_line);
+                                                    CreateNode(&$$,"CompSt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -194,7 +194,7 @@ CompSt			:	LC DefList StmTList RC		{
                                                 }
                 ;
 StmTList		:	Stmt StmTList   			{
-                                                    CreateNode(&$$,"StmTList",@1.first_line);
+                                                    CreateNode(&$$,"StmTList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
@@ -203,22 +203,22 @@ StmTList		:	Stmt StmTList   			{
                                                 }
 				;
 Stmt			:	Exp	SEMI					{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
                 |	CompSt						{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	RETURN Exp SEMI				{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	IF LP Exp RP Stmt %prec LOWER_THAN_ELSE	{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -226,7 +226,7 @@ Stmt			:	Exp	SEMI					{
 													addNodeToParent(&$$,$5);
                                                 }
                 |	IF LP Exp RP Stmt ELSE Stmt	{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -236,7 +236,7 @@ Stmt			:	Exp	SEMI					{
 													addNodeToParent(&$$,$7);
                                                 }
                 |	WHILE LP Exp RP Stmt		{
-                                                    CreateNode(&$$,"Stmt",@1.first_line);
+                                                    CreateNode(&$$,"Stmt","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -248,7 +248,7 @@ Stmt			:	Exp	SEMI					{
                                                 }
 				;
 DefList			:	Def DefList					{
-                                                    CreateNode(&$$,"DecList",@1.first_line);
+                                                    CreateNode(&$$,"DecList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
@@ -257,7 +257,7 @@ DefList			:	Def DefList					{
                                                 }	
 				;
 Def				:	Specifier DecList SEMI		{
-                                                    CreateNode(&$$,"Def",@1.first_line);
+                                                    CreateNode(&$$,"Def","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -267,127 +267,127 @@ Def				:	Specifier DecList SEMI		{
                                                 }
 				;
 DecList			:	Dec							{
-                                                    CreateNode(&$$,"DecList",@1.first_line);
+                                                    CreateNode(&$$,"DecList","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	Dec COMMA DecList			{
-                                                    CreateNode(&$$,"DecList",@1.first_line);
+                                                    CreateNode(&$$,"DecList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
 				;
 Dec				:	VarDec						{
-                                                    CreateNode(&$$,"Dec",@1.first_line);
+                                                    CreateNode(&$$,"Dec","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	VarDec ASSIGNOP Exp			{
-                                                    CreateNode(&$$,"Dec",@1.first_line);
+                                                    CreateNode(&$$,"Dec","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
 				;
 Exp				:	Exp ASSIGNOP Exp			{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp AND Exp					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp OR Exp					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp RELOP Exp				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp PLUS Exp				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp MINUS Exp				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp STAR Exp				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp DIV Exp					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	LP Exp RP					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	MINUS Exp %prec UNARY	    {
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
                 |	NOT Exp						{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }
                 |	ID LP Args RP				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
 													addNodeToParent(&$$,$4);
                                                 }
                 |	ID LP RP					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp LB Exp RB				{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
 													addNodeToParent(&$$,$4);
                                                 }
                 |	Exp DOT ID					{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	ID							{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	INT							{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |	FLOAT						{
-                                                    CreateNode(&$$,"Exp",@1.first_line);
+                                                    CreateNode(&$$,"Exp","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
                 |   LP error RP                 {
@@ -398,13 +398,13 @@ Exp				:	Exp ASSIGNOP Exp			{
                                                 }
                 ;
 Args			:	Exp COMMA Args				{
-                                                    CreateNode(&$$,"Args",@1.first_line);
+                                                    CreateNode(&$$,"Args","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Exp							{
-                                                    CreateNode(&$$,"Args",@1.first_line);
+                                                    CreateNode(&$$,"Args","",@1.first_line);
 													addNodeToParent(&$$,$1);
                                                 }
 				;
