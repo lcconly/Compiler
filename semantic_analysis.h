@@ -1,0 +1,20 @@
+/*************************************************************************
+	> File Name: semantic_analysis.h
+	> Author: liucheng
+	> Mail: 1035377294@qq.com 
+	> Created Time: Thu 10 Apr 2014 10:34:21 PM CST
+ ************************************************************************/
+
+#include"hash_table.h"
+#include"Node.h"
+FieldList varList[MAXHARSHSIZE];
+FieldList structList[MAXHARSHSIZE];
+FieldList funcList[MAXHARSHSIZE];
+void travel_grammer_tree(struct TreeNode *root);
+void travel_specifier_tree(struct TreeNode *root);
+void travel_vardec_tree(struct TreeNode *root);
+void travel_def_tree(struct TreeNode *root);
+void travel_declist_tree(struct TreeNode *root);
+void travel_fundec_tree(struct TreeNode *root);
+void travel_exp_tree(struct TreeNode *root);
+void travel_stmt_tree(struct TreeNode *root);

@@ -6,6 +6,7 @@
  ************************************************************************/
 
 #include"hash_table.h"
+/*hash_pjw*/
 unsigned int hash_pjw(char *name){
 	unsigned int val=0,i;
 	for(;*name;++name){
@@ -15,6 +16,7 @@ unsigned int hash_pjw(char *name){
 	}
 	return val;
 }
+/*insert node to the list*/
 bool insert(FieldList *node,FieldList *list){
 	unsigned int index=hash_pjw((*node)->name);
 	FieldList *head,*p,*q;
@@ -35,6 +37,7 @@ bool insert(FieldList *node,FieldList *list){
 	}
 	return true;
 }
+/*fetch the node from the list*/
 FieldList *fetch(char* name,FieldList *list){
 	unsigned int index=hash_pjw(name);
 	FieldList *p;
@@ -46,6 +49,7 @@ FieldList *fetch(char* name,FieldList *list){
 	}
 	return NULL;
 }
+/*print the whole list*/
 void show_hash_table(FieldList *list){
 	int i;
 	for(i=0;i<MAXHARSHSIZE;i++){

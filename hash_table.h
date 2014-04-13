@@ -27,9 +27,6 @@ struct FieldList_{
     FieldList tail;
 };
 
-FieldList varList[MAXHARSHSIZE];
-FieldList structList[MAXHARSHSIZE];
-FieldList funcList[MAXHARSHSIZE];
 unsigned int hash_pjw(char *name);
 bool insert(FieldList *node,FieldList *list);
 FieldList *fetch(char* name,FieldList *list);
