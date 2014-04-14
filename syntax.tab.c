@@ -70,7 +70,7 @@
 
 #include<stdio.h>
 #include"lex.yy.c"
-#include"Node.h"
+#include"include/Node.h"
 #define YYDEBUG 1
 
 

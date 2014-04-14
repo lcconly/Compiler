@@ -536,7 +536,7 @@ char *yytext;
 #line 1 "lexical.l"
 #line 2 "lexical.l"
 #include"syntax.tab.h"
-#include"Node.h"
+#include"include/Node.h"
 static int yycolumn=1;
 int hasError=0;
 #define YY_USER_ACTION yylloc.first_line=yylloc.last_line=yylineno;\
