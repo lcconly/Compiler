@@ -11,24 +11,24 @@
 #include<stdio.h>
 #include<stdbool.h>
 #define MAXHARSHSIZE 16384
-typedef struct Type_* Type;
-typedef struct FieldList_* FieldList;
+typedef struct Type_ Type;
+typedef struct FieldList_ FieldList;
 struct Type_{
     enum{basic,array,structure} kind;
     union{
         int basic;
-        struct{Type elem;int size;}array;
-        FieldList structure;
+        struct{Type *elem;int size;}array;
+        FieldList *structure;
     }u;
 };
 struct FieldList_{
     char* name;
-    Type type;
-    FieldList tail;
+    Type *type;
+    FieldList *tail;
 };
 
 unsigned int hash_pjw(char *name);
-bool insert(FieldList *node,FieldList *list);
-FieldList *fetch(char* name,FieldList *list);
-void show_hash_table(FieldList *list); 
+bool insert(FieldList *node,FieldList **list);
+FieldList *fetch(char* name,FieldList **list);
+void show_hash_table(FieldList **list); 
 #endif 

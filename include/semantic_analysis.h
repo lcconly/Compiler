@@ -9,9 +9,9 @@
 
 #include"hash_table.h"
 #include"Node.h"
-FieldList varList[MAXHARSHSIZE];
-FieldList structList[MAXHARSHSIZE];
-FieldList funcList[MAXHARSHSIZE];
+FieldList* varList[MAXHARSHSIZE];
+FieldList* structList[MAXHARSHSIZE];
+FieldList* funcList[MAXHARSHSIZE];
 void travel_grammer_tree(struct TreeNode *root);
 Type* travel_specifier_tree(struct TreeNode *root);
 FieldList* travel_vardec_tree(struct TreeNode *root);

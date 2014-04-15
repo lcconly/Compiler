@@ -9,11 +9,13 @@ lex.yy.c:lexical.l
 	flex lexical.l
 
 parser:$(CFILES) $(HFILES) syntax.tab.c syntax.tab.h lex.yy.c
-	gcc $(CFILES) syntax.tab.c -lfl -ly -o parser
+	gcc $(CFILES) syntax.tab.c -g -lfl -ly -o parser
 
-.PHONY:run clean
+.PHONY:run clean coredump
 run:parser
 	./parser test.cmm
+coredump:
+	gdb ./parser ./core
 
 clean:
-	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser
+	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser core

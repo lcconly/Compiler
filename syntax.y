@@ -43,7 +43,7 @@
 %left LB RB
 %left LP RP
 
-%type <Node> Program ExtDefList ExDef ExtDecList
+%type <Node> Program ExtDefList ExtDef ExtDecList
 %type <Node> Specifier StructSpecifier OptTag Tag
 %type <Node> VarDec FunDec VarList ParamDec
 %type <Node> CompSt StmTList Stmt
@@ -58,7 +58,7 @@ Program			:	ExtDefList					{
 													root=$$;
                                                 }
 				;
-ExtDefList		:	ExDef ExtDefList			{
+ExtDefList		:	ExtDef ExtDefList			{
                                                     CreateNode(&$$,"ExtDefList","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
@@ -67,19 +67,19 @@ ExtDefList		:	ExDef ExtDefList			{
                                                     $$=NULL;
                                                 }
 				;
-ExDef			:	Specifier ExtDecList SEMI	{
-													CreateNode(&$$,"ExDef","",@1.first_line);
+ExtDef			:	Specifier ExtDecList SEMI	{
+													CreateNode(&$$,"ExtDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
                                                 }
                 |	Specifier SEMI              {
-                                                    CreateNode(&$$,"ExDef","",@1.first_line);
+                                                    CreateNode(&$$,"ExtDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
                                                 }             
                 |	Specifier FunDec CompSt		{
-                                                    CreateNode(&$$,"ExDef","",@1.first_line);
+                                                    CreateNode(&$$,"ExtDef","",@1.first_line);
 													addNodeToParent(&$$,$1);
 													addNodeToParent(&$$,$2);
 													addNodeToParent(&$$,$3);
@@ -246,6 +246,7 @@ Stmt			:	Exp	SEMI					{
                 |   error SEMI                  {
                                                     //CreateNode("ERROR",0,0);
                                                 }
+				|	error RP					{}
 				;
 DefList			:	Def DefList					{
                                                     CreateNode(&$$,"DecList","",@1.first_line);
