@@ -22,6 +22,7 @@ bool insert(FieldList *node,FieldList **list){
 	FieldList *head,*p,*q;
 	head=list[index];
 	if(head==NULL){
+		printf("insert null\n");
 		node->tail=NULL;
 		list[index]=node;
 	}
@@ -29,7 +30,7 @@ bool insert(FieldList *node,FieldList **list){
 		p=head;
 		while(p!=NULL){
 			q=p;
-			if(strcmp(node->name,p->name)==0) return false;
+			if(!strcmp(node->name,p->name)) return false;
 			p=p->tail;
 		}
 		node->tail=NULL;

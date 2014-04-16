@@ -12,13 +12,13 @@ void travel_grammer_tree(struct TreeNode *root){
     for(i=0; i<=root->childnum; i++){
         temp=root->childNode[i];
         if(!strcmp(temp->data,"Def") || !strcmp(temp->data,"ExtDef")){
-            printf("travel_grammer_tree\n");
+            //printf("travel_grammer_tree\n");
             travel_def_tree(temp);
             continue;
         }
         else if(!strcmp(temp->data,"Stmt")){
             travel_stmt_tree(temp);
-            continue;
+            //continue;
         }
         travel_grammer_tree(temp);
     }
@@ -27,10 +27,10 @@ void travel_grammer_tree(struct TreeNode *root){
 
 Type* travel_specifier_tree(struct TreeNode *root){
     struct TreeNode* type_node=root->childNode[0];
-    printf("name %s  childnum : %d\n",root->data,root->childnum);
-    printf("travel_specifier_tree\n");
+    //printf("name %s  childnum : %d\n",root->data,root->childnum);
+    //printf("travel_specifier_tree\n");
     if(!strcmp(type_node->data,"TYPE")){
-        printf("Type\n");
+        //printf("Type\n");
         Type* type=(Type *)malloc(sizeof(Type));
         type->kind=basic;
         if(!strcmp(type_node->sub_data,"int"))
@@ -40,7 +40,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         return type;
     }
     else{
-        printf("struct\n");
+        //printf("struct\n");
         struct TreeNode *tag_node=type_node->childNode[1];
         Type *type=(Type *)malloc(sizeof(Type));
         type->kind=structure;
@@ -49,13 +49,15 @@ Type* travel_specifier_tree(struct TreeNode *root){
             FieldList *field=(FieldList *)malloc(sizeof(FieldList));
             field=travel_deflist_tree(deflist_node,field);
             (type->u).structure=field;
+            //if(field==NULL)printf("!!!!!!\n");
             if(tag_node->childnum==0){
                 struct TreeNode *id_node=tag_node->childNode[0];
-                (type->u).structure->name=id_node->sub_data;
-                printf("insert %s\n",id_node->sub_data);
+                //printf("sub_data:++++++++++:%s\n",id_node->sub_data);
+                ((type->u).structure)->name=id_node->sub_data;
+                //printf("insert+++++++ %s\n",id_node->sub_data);
                 if(!insert(((type->u).structure),structList)){
                     printf("Error type 16 at line %d: Duplicated name '%s'\n"
-                           ,root->line,id_node->sub_data);
+                           ,type_node->line,id_node->sub_data);
                     return NULL;
                 }
             }
@@ -63,11 +65,11 @@ Type* travel_specifier_tree(struct TreeNode *root){
         }
         else{
             struct TreeNode* id_node=tag_node->childNode[0];
-            printf("fetch %s\n",id_node->sub_data);
+            //printf("fetch %s\n",id_node->sub_data);
             FieldList *p=fetch(id_node->sub_data,structList);
             if(p==NULL){
                 printf("Error type 17 at line %d: Undefined struct '%s'\n",
-                       root->line,id_node->sub_data);
+                       type_node->line,id_node->sub_data);
                 return NULL;
             }
             (type->u).structure=p;
@@ -79,7 +81,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
 
 FieldList* travel_vardec_tree(struct TreeNode *root){
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
-    printf("name %s  childnum : %d\n",root->data,root->childnum);
+    //printf("name %s  childnum : %d\n",root->data,root->childnum);
     
     if(root->childnum==0){
         struct TreeNode *id_node=root->childNode[0];
@@ -87,7 +89,7 @@ FieldList* travel_vardec_tree(struct TreeNode *root){
         return var;
     }
     else{
-        printf("travel_vardec_tree\n");
+        //printf("travel_vardec_tree\n");
         var=travel_vardec_tree(root->childNode[0]);
         struct TreeNode *int_node=root->childNode[2];
         Type *type=(Type*)malloc(sizeof(Type));
@@ -106,8 +108,8 @@ FieldList* travel_vardec_tree(struct TreeNode *root){
     }
 }
 void travel_def_tree(struct TreeNode *root){
-    printf("travel_def_tree\n");
-    printf("name %s  childnum : %d\n",root->data,root->childnum);
+    //printf("travel_def_tree\n");
+    //printf("name %s  childnum : %d\n",root->data,root->childnum);
     struct TreeNode *specifier_node=root->childNode[0];
     struct TreeNode *declist_node=root->childNode[1];
     Type *type=travel_specifier_tree(specifier_node);
@@ -118,6 +120,7 @@ void travel_def_tree(struct TreeNode *root){
         !strcmp(declist_node->data,"ExtDecList"))
         travel_extdeclist_tree(declist_node,type);
     else if(!strcmp(declist_node->data,"FunDec")){
+        //printf("travel_fundec_tree");
         FieldList *func=(FieldList*)malloc(sizeof(FieldList));
         func->name=declist_node->childNode[0]->sub_data;
         func->type=type;
@@ -130,6 +133,7 @@ void travel_def_tree(struct TreeNode *root){
         }
         if(!insert(func,funcList))
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
+        travel_grammer_tree(root->childNode[2]);
     }
 }
 FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
@@ -143,7 +147,7 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
                 field=travel_declist_tree(declist_node,type,field);
                 break;
             }
-            else if (strcmp(root->data, "ParamDec") == 0)
+            else if (!strcmp(root->data, "ParamDec"))
             {
                 struct TreeNode* specifier_node = root->childNode[0];
                 struct TreeNode* declist_node = root->childNode[1];
@@ -157,11 +161,11 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
 }
 FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field){
     int i;
-    printf("name %s  childnum : %d\n",root->data,root->childnum);
+    //printf("name %s  childnum : %d\n",root->data,root->childnum);
     for(i=0; i<=root->childnum;i++) {
         if(!strcmp(root->data,"VarDec")){
             FieldList *var=(FieldList *)malloc(sizeof(FieldList));
-            printf("travel_declist_tree\n");
+            //printf("travel_declist_tree\n");
             var=travel_vardec_tree(root);
             if(var->type==NULL)
                 var->type=type;
@@ -176,6 +180,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 temp->kind=structure;
                 (temp->u).structure=var;
                 field->type=temp;
+                //printf("~~~~~~~~~~~~~~~~~~~\n");
             }
             else{
                 FieldList *p,*q;
@@ -185,7 +190,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                     if(!strcmp(p->name,var->name)){
                         printf("Error type 15 at line %d: Redefined field '%s'\n",
                                root->line,var->name);
-                        return NULL;
+                        return field;
                     }
                     p=p->tail;
                 }
@@ -196,17 +201,18 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
         }
         field=travel_declist_tree(root->childNode[i],type,field);
     }
+    //if(field==NULL) printf("~~~~~~~~~~~\n");
     return field;
 }
 
 void travel_extdeclist_tree(struct TreeNode *root,Type *type){
     int i;
-    printf("travel_extdeclist_tree\n");
-    printf("name %s  childnum : %d\n",root->data,root->childnum);
+    //printf("travel_extdeclist_tree\n");
+    //printf("name %s  childnum : %d\n",root->data,root->childnum);
     for(i=0;i<=root->childnum;i++){
         if(!strcmp(root->data,"VarDec")){
             FieldList *var=(FieldList*)malloc(sizeof(FieldList));
-            printf("travel_extdeclist_tree\n");
+            //printf("travel_extdeclist_tree\n");
             var=travel_vardec_tree(root);
             if(var->type==NULL)
                 var->type=type;
@@ -216,7 +222,8 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
                     p=(p->u).array.elem;
                 (p->u).array.elem=type;
             }
-            if(fetch(var->name,structList)==NULL){
+            //printf("name : %s\n",var->name);
+            if(fetch(var->name,structList)!=NULL){
                 printf("Error type 3 at line %d:Redefined variable \"%s\"\n",root->line,var->name);
             }
             else if(!insert(var,varList)){ 
@@ -227,6 +234,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
         travel_extdeclist_tree(root->childNode[i],type);
     }
 }
+
 FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
     int i;
     if(root!=NULL)
@@ -236,7 +244,7 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
                 struct TreeNode *vardec_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
                 FieldList *var=(FieldList *)malloc(sizeof(FieldList));
-                printf("travel_fundec_tree\n");
+                //printf("travel_fundec_tree\n");
                 var=travel_vardec_tree(vardec_node);
                 if(var->type==NULL){
                     var->type=type;
