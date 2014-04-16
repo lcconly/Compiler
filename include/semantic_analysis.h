@@ -12,14 +12,17 @@
 FieldList* varList[MAXHARSHSIZE];
 FieldList* structList[MAXHARSHSIZE];
 FieldList* funcList[MAXHARSHSIZE];
+Type *funType;
 void travel_grammer_tree(struct TreeNode *root);
 Type* travel_specifier_tree(struct TreeNode *root);
 FieldList* travel_vardec_tree(struct TreeNode *root);
 void travel_def_tree(struct TreeNode *root);
 FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList *field);
 FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield);
-void travel_exp_tree(struct TreeNode *root);
+Type* travel_exp_tree(struct TreeNode *root);
 void travel_stmt_tree(struct TreeNode *root);
 void travel_extdeclist_tree(struct TreeNode *root,Type *type);
 FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field);
+bool charge_struct_equal(Type *type1,Type *type2);
+bool charge_type_equal(Type *type1,Type *type2);
 #endif

@@ -6,6 +6,7 @@
  ************************************************************************/
 
 #include"../include/semantic_analysis.h"
+/*遍历语法树*/
 void travel_grammer_tree(struct TreeNode *root){
     int i=0;
     struct TreeNode *temp=NULL;
@@ -16,7 +17,7 @@ void travel_grammer_tree(struct TreeNode *root){
             travel_def_tree(temp);
             continue;
         }
-        else if(!strcmp(temp->data,"Stmt")){
+        else if(!strcmp(temp->data,"Stmt")&&root->childnum>0){
             travel_stmt_tree(temp);
             //continue;
         }
@@ -24,12 +25,12 @@ void travel_grammer_tree(struct TreeNode *root){
     }
 }
 
-
+/*遍历specifier_node返回类型*/
 Type* travel_specifier_tree(struct TreeNode *root){
     struct TreeNode* type_node=root->childNode[0];
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
     //printf("travel_specifier_tree\n");
-    if(!strcmp(type_node->data,"TYPE")){
+    if(!strcmp(type_node->data,"TYPE")){//普通类型
         //printf("Type\n");
         Type* type=(Type *)malloc(sizeof(Type));
         type->kind=basic;
@@ -39,7 +40,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
             (type->u).basic=1;
         return type;
     }
-    else{
+    else{//结构类型
         //printf("struct\n");
         struct TreeNode *tag_node=type_node->childNode[1];
         Type *type=(Type *)malloc(sizeof(Type));
@@ -78,7 +79,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
     }
     return NULL;
 }
-
+/*遍历vardec到最后一层识别ID*/
 FieldList* travel_vardec_tree(struct TreeNode *root){
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
@@ -107,6 +108,7 @@ FieldList* travel_vardec_tree(struct TreeNode *root){
         return var;
     }
 }
+/*遍历所有的定义*/
 void travel_def_tree(struct TreeNode *root){
     //printf("travel_def_tree\n");
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
@@ -124,6 +126,7 @@ void travel_def_tree(struct TreeNode *root){
         FieldList *func=(FieldList*)malloc(sizeof(FieldList));
         func->name=declist_node->childNode[0]->sub_data;
         func->type=type;
+        funType=type;
         if(declist_node->childnum==2)
             func->tail=NULL;
         else{
@@ -136,6 +139,7 @@ void travel_def_tree(struct TreeNode *root){
         travel_grammer_tree(root->childNode[2]);
     }
 }
+/*遍历deflist节点，包含全局变量和函数内变量*/
 FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
     int i;
     if(root!=NULL)
@@ -159,6 +163,7 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
         }
     return field;
 }
+/*遍历deflist的declist*/
 FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field){
     int i;
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
@@ -204,7 +209,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
     //if(field==NULL) printf("~~~~~~~~~~~\n");
     return field;
 }
-
+/*遍历全局变量列表*/
 void travel_extdeclist_tree(struct TreeNode *root,Type *type){
     int i;
     //printf("travel_extdeclist_tree\n");
@@ -234,7 +239,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
         travel_extdeclist_tree(root->childNode[i],type);
     }
 }
-
+/*遍历fundc*/
 FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
     int i;
     if(root!=NULL)
@@ -272,10 +277,99 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
         }
     return structfield;
 }
-void travel_exp_tree(struct TreeNode *root){
+/*分组2.3判断结构内部定义相等则两个结构相同*/
+bool charge_struct_equal(Type *type1,Type *type2){
+    if(!strcmp((type1->u).structure->name,(type2->u).structure->name))
+        return true;
+    else{
+        FieldList *f1=((type1->u).structure->type->u).structure;
+        FieldList *f2=((type2->u).structure->type->u).structure;
+        while(f1!=NULL&&f2!=NULL){
+            if(!charge_struct_equal(f1->type,f2->type))
+                return false;
+            f1=f1->tail;
+            f2=f2->tail;
+        }
+        if(f1!=NULL&&f2!=NULL)
+            return false;
+        return true;
+    }
+}
+bool charge_type_equal(Type *type1,Type *type2){
+    if(type1==NULL||type2==NULL)
+        return false;
+    else if(type1->kind!=type2->kind)
+        return false;
+    else{
+        int count1=0,count2=0;
+        Type *p1=type1;
+        Type *p2=type2;
+        switch(type1->kind){
+            case 0:{
+                if((type1->u).basic!=(type2->u).basic)
+                    return false;
+                break;
+            }
+            case 1:{
+                while(p1->kind==1){
+                    count1++;
+                    p1=(p1->u).array.elem;
+                }
+                while(p2->kind==1){
+                    count2++;
+                    p2=(p2->u).array.elem;
+                }
+                if(count1!=count2)
+                    return false;
+                if(p1->kind!=p2->kind)
+                    return false;
+                else if(p1->kind==0){
+                    if((p1->u).basic!=(p2->u).basic)
+                        return false;
+                }
+                else
+                    return charge_type_equal(type1,type2);
+                break;
+            }
+            case 2:{
+                return charge_struct_equal(type1,type2);
+                break;
+            }
+        }
+    }
+    return true;
+}
 
+Type* ravel_exp_tree(struct TreeNode *root){
+    
+    return NULL;
 }
 void travel_stmt_tree(struct TreeNode *root){
-
+    if(root->childnum==1){
+        Type *type=travel_exp_tree(root->childNode[0]);
+        if(type==NULL){
+            if(root->childNode[0]->childnum==2){
+                if(!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))
+                    printf("Error type 5 at %d: Type mismached\n",root->line);
+                else if(!strcmp(root->childNode[0]->childNode[1]->data,"Exp"))
+                    printf("Error type 7 at %d: Operands type mismached\n",root->line);
+            }
+        }
+    }
+    else if(root->childnum==2){
+        Type *type=travel_exp_tree(root->childNode[1]);
+        if(type==NULL||!charge_type_equal(funType,type)){
+            printf("Error type 8 at line %d: The return type mismached\n",root->line);
+        } 
+    }
+    else if(root->childnum==4){
+        travel_exp_tree(root->childNode[2]);
+        travel_grammer_tree(root->childNode[4]);
+    }
+    else if(root->childnum==6){
+        travel_exp_tree(root->childNode[2]);
+        travel_grammer_tree(root->childNode[4]);
+        travel_grammer_tree(root->childNode[6]);
+    }
 }
 
