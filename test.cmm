@@ -1,9 +1,6 @@
-struct Temp1 {
+int main()
+{
 int i;
-float j; };
-struct Temp2 {
-int x;
-float y; };
-int main() {
-struct Temp1 t1; struct Temp2 t2; t1 = t2;
+while (i < 10)
+j = i + 1;
 }

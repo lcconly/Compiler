@@ -56,6 +56,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
                 //printf("sub_data:++++++++++:%s\n",id_node->sub_data);
                 ((type->u).structure)->name=id_node->sub_data;
                 //printf("insert+++++++ %s\n",id_node->sub_data);
+                //printf("type : %s\n",((type->u).structure->type->u).structure->name);
                 if(!insert(((type->u).structure),structList)){
                     printf("Error type 16 at line %d: Duplicated name '%s'\n"
                            ,type_node->line,id_node->sub_data);
@@ -73,6 +74,8 @@ Type* travel_specifier_tree(struct TreeNode *root){
                        type_node->line,id_node->sub_data);
                 return NULL;
             }
+            //printf("type1 : %s\n",(p->type->u).structure->name);
+            //printf("type2 : %s\n",(((p->type->u).structure->type->u)).structure->name);
             (type->u).structure=p;
             return type;
         }
@@ -150,18 +153,11 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
                 struct TreeNode *specifier_node=root->childNode[0];
                 struct TreeNode *declist_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
+                //printf("type in def %d\n",type->kind);
                 field=travel_declist_tree(declist_node,type,field);
+                //printf("type in def %s\n",field->name);
                 break;
             }
-            //else if(!strcmp(root->data,"ParamDec"))
-            //{
-            //    printf("!!!!!!!!!!!!!\n");
-            //    struct TreeNode* specifier_node = root->childNode[0];
-            //    struct TreeNode* declist_node = root->childNode[1];
-            //    Type *type=travel_specifier_tree(specifier_node);
-            //    field=travel_declist_tree(declist_node,type,field);
-            //    break;                            
-            //}
             field=travel_deflist_tree(root->childNode[i],field);
         }
     return field;
@@ -188,6 +184,8 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 temp->kind=structure;
                 (temp->u).structure=var;
                 field->type=temp;
+                //printf("var in declist--------- %s\n",var->name);
+                //printf("type in declist------- %s\n",(field->type->u).structure->name);
                 //printf("~~~~~~~~~~~~~~~~~~~\n");
             }
             else{
@@ -205,10 +203,12 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 q->tail=var;
                 var->tail=NULL;
             }
+            //printf("var in declist %s\n",var->name);
             break;
         }
         field=travel_declist_tree(root->childNode[i],type,field);
     }
+    //printf("type in declist------- %s\n",(field->type->u).structure->name);
     //if(field==NULL) printf("~~~~~~~~~~~\n");
     return field;
 }
@@ -291,18 +291,20 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
 }
 /*分组2.3判断结构内部定义相等则两个结构相同*/
 bool charge_struct_equal(Type *type1,Type *type2){
+    //printf("struct 1 : %s\n",(type1->u).structure->name);
+    //printf("struct 2 : %s\n",(type2->u).structure->name);
     if(!strcmp((type1->u).structure->name,(type2->u).structure->name))
         return true;
     else{
         FieldList *f1=((type1->u).structure->type->u).structure;
         FieldList *f2=((type2->u).structure->type->u).structure;
         while(f1!=NULL&&f2!=NULL){
-            if(!charge_struct_equal(f1->type,f2->type))
+            if(!charge_type_equal(f1->type,f2->type))
                 return false;
             f1=f1->tail;
             f2=f2->tail;
         }
-        if(f1!=NULL&&f2!=NULL)
+        if(f1!=NULL||f2!=NULL)
             return false;
         return true;
     }
@@ -317,7 +319,9 @@ bool charge_type_equal(Type *type1,Type *type2){
         int count1=0,count2=0;
         Type *p1=type1;
         Type *p2=type2;
+        //printf("kind %d~~\n",type1->kind);
         switch(type1->kind){
+            //printf("kind %d~~\n",type1->kind);
             case 0:{
                 if((type1->u).basic!=(type2->u).basic)
                     return false;
