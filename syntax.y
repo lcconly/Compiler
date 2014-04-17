@@ -192,6 +192,7 @@ CompSt			:	LC DefList StmTList RC		{
                 |   error RC                    {
                                                     //CreateNode("ERROR",0,0);
                                                 }
+				|	error SEMI					{}
                 ;
 StmTList		:	Stmt StmTList   			{
                                                     CreateNode(&$$,"StmTList","",@1.first_line);

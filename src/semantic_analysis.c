@@ -423,7 +423,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 }
                 return var->type;
             }
-            else if(fetch(id_node->data,varList)!=NULL){
+            else if(fetch(id_node->sub_data,varList)!=NULL){
                 printf("Error type 11 at line %d: \"%s\" must be a function\n"
                        ,id_node->line,id_node->sub_data);
                 return (fetch(id_node->sub_data,varList))->type;
@@ -477,24 +477,17 @@ Type* travel_exp_tree(struct TreeNode *root){
                 Type *type1=travel_exp_tree(root->childNode[0]);
                 Type *type2=travel_exp_tree(root->childNode[2]);
                 if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
-                    charge_right_value(root->childNode[0]);
+                    if(root->childNode[0]!=NULL)
+                        if(!strcmp(root->childNode[0]->childNode[0]->data,"INT")
+                            ||!strcmp(root->childNode[0]->childNode[0]->data,"FLOAT"))
+                            printf("Error type 6 at line %d: The left-hand side"\
+                               " of an assignment must be a variable\n",root->line);
                 }
                 if(!charge_type_equal(type1,type2))
                     return NULL;
                 return type1;
             }
         }    
-    }
-}
-/*判断存在非法的左值操作数*/
-void charge_right_value(struct TreeNode *root){
-    if(root!=NULL){
-        if(!strcmp(root->data,"INT")||!strcmp(root->data,"FLOAT"))
-            printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable\n",
-                  root->line);
-        int i=0;
-        for(i=0;i<=root->childnum;i++)
-            charge_right_value(root->childNode[i]);
     }
 }
 /*获取函数参数类型，传递到str*/

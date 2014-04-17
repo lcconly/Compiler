@@ -46,6 +46,4 @@ FieldList*  travel_args_tree(struct TreeNode *root,FieldList *args);
 void copyStr(FieldList* myStr, char *str);
 /*args遍历传递参数类型到str*/
 void copyStr_args(FieldList* myStr, char *str);
-/*判断存在非法的左值操作数*/
-void charge_right_value(struct TreeNode *root);
 #endif
