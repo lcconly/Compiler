@@ -17,9 +17,9 @@ void travel_grammer_tree(struct TreeNode *root){
             travel_def_tree(temp);
             continue;
         }
-        else if(!strcmp(temp->data,"Stmt")&&root->childnum>0){
+        else if(!strcmp(temp->data,"Stmt")&&temp->childnum>0){
             travel_stmt_tree(temp);
-            //continue;
+            continue;
         }
         travel_grammer_tree(temp);
     }
@@ -122,17 +122,16 @@ void travel_def_tree(struct TreeNode *root){
         !strcmp(declist_node->data,"ExtDecList"))
         travel_extdeclist_tree(declist_node,type);
     else if(!strcmp(declist_node->data,"FunDec")){
-        //printf("travel_fundec_tree");
-        FieldList *func=(FieldList*)malloc(sizeof(FieldList));
+        printf("travel_fundec_tree\n");
+        func=(FieldList*)malloc(sizeof(FieldList));
         func->name=declist_node->childNode[0]->sub_data;
         func->type=type;
         funType=type;
         if(declist_node->childnum==2)
-            func->tail=NULL;
+            func->variable=NULL;
         else{
-            field=NULL;
             field=travel_fundec_tree(declist_node->childNode[2],field);
-            func->tail=field;
+            func->variable=field;
         }
         if(!insert(func,funcList))
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
@@ -151,14 +150,15 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
                 field=travel_declist_tree(declist_node,type,field);
                 break;
             }
-            else if (!strcmp(root->data, "ParamDec"))
-            {
-                struct TreeNode* specifier_node = root->childNode[0];
-                struct TreeNode* declist_node = root->childNode[1];
-                Type *type=travel_specifier_tree(specifier_node);
-                field=travel_declist_tree(declist_node,type,field);
-                break;                            
-            }
+            //else if(!strcmp(root->data,"ParamDec"))
+            //{
+            //    printf("!!!!!!!!!!!!!\n");
+            //    struct TreeNode* specifier_node = root->childNode[0];
+            //    struct TreeNode* declist_node = root->childNode[1];
+            //    Type *type=travel_specifier_tree(specifier_node);
+            //    field=travel_declist_tree(declist_node,type,field);
+            //    break;                            
+            //}
             field=travel_deflist_tree(root->childNode[i],field);
         }
     return field;
@@ -245,12 +245,16 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
     if(root!=NULL)
         for(i=0;i<=root->childnum;i++){
             if(!strcmp(root->data,"ParamDec")){
+                printf("add ParamDec !!!!!!!!!!!!\n");
                 struct TreeNode *specifier_node=root->childNode[0];
                 struct TreeNode *vardec_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
                 FieldList *var=(FieldList *)malloc(sizeof(FieldList));
                 //printf("travel_fundec_tree\n");
                 var=travel_vardec_tree(vardec_node);
+                //printf("%d %s \n",type->kind,var->name);
+                travel_extdeclist_tree(root,type);
+                printf("%d %s \n",type->kind,var->name);
                 if(var->type==NULL){
                     var->type=type;
                 }
@@ -295,6 +299,7 @@ bool charge_struct_equal(Type *type1,Type *type2){
         return true;
     }
 }
+/*判断两个type是否相等*/
 bool charge_type_equal(Type *type1,Type *type2){
     if(type1==NULL||type2==NULL)
         return false;
@@ -339,19 +344,205 @@ bool charge_type_equal(Type *type1,Type *type2){
     }
     return true;
 }
-
-Type* ravel_exp_tree(struct TreeNode *root){
-    
-    return NULL;
+/*遍历exp的子树*/
+Type* travel_exp_tree(struct TreeNode *root){
+    FieldList *var=(FieldList *)malloc(sizeof(FieldList));
+    if(root!=NULL){
+        if(root->childnum==0 && !strcmp((root->childNode[0])->data,"ID")){
+            struct TreeNode *id_node=root->childNode[0];
+            //printf("ID:   %s ~~~~~~~\n",id_node->sub_data);
+            var=fetch(id_node->sub_data,varList);
+            //if(func==NULL)printf("!!!!!!!!!!\n");
+            if(var==NULL&&func!=NULL){
+                FieldList *p=func->tail;
+                while(p!=NULL){
+                    if(!strcmp(p->name,id_node->sub_data)){
+                        var=p;
+                        break;
+                    }
+                    p=p->tail;
+                }
+            }
+            if(var==NULL){
+                printf("Error type 1 at line %d: Undefined variable \"%s\"\n",
+                       root->line,id_node->sub_data);
+                Type *type=(Type *)malloc(sizeof(Type));
+                type->kind=basic;
+                (type->u).basic=0;
+                return type;
+            }
+            return var->type;
+        }
+        else if(root->childnum==0 && !strcmp((root->childNode[0])->data,"INT")){
+            Type* type=(Type *)malloc(sizeof(Type));
+            type->kind=basic;
+            (type->u).basic=0;
+            return type;
+        }
+        else if(root->childnum==0 && !strcmp((root->childNode[0])->data,"FLOAT")){
+            Type* type=(Type *)malloc(sizeof(Type));
+            type->kind=basic;
+            (type->u).basic=1;
+            return type;
+        }
+        else if((root->childnum==2||root->childnum==3)&&!strcmp((root->childNode[1])->data,"LP")){
+            struct TreeNode *id_node=root->childNode[0];
+            var=fetch(id_node->sub_data,funcList);
+            //show_hash_table(funcList);
+            printf("func: %s ~~~~~~~\n",id_node->sub_data);
+            FieldList *args=(FieldList *)malloc(sizeof(FieldList));
+            if(var!=NULL){
+                if(root->childnum==3){
+                    args=travel_args_tree(root->childNode[2],args);
+                    //printf("%x",args);
+                }
+                else args=NULL;
+                printf("%x\n",var->variable);
+                if(!charge_args_equal(var->variable,args)){
+                    //printf("%x",args);
+                    char str1[MAXDATA],str2[MAXDATA];
+                    FieldList *myStr=var->variable;
+                    printf("%x\n",var->variable);
+                    copyStr(myStr,str1);
+                    printf("str: %s !!!!!!!!!!!\n",str1);
+                    myStr=args;
+                    copyStr(myStr,str2);
+                    printf("Error type 9 at line %d: The method \"%s(%s)\"\
+                           is not applicable for the arguments \"(%s)\"\n",
+                           root->line,var->name,str1,str2);
+                }
+                return var->type;
+            }
+            else if(fetch(id_node->data,varList)!=NULL){
+                printf("Error type 11 at line %d: \"%s\" must be a function\n"
+                       ,id_node->line,id_node->sub_data);
+                return (fetch(id_node->sub_data,varList))->type;
+            }
+            else{
+                printf("Error type 2 at line %d: Undefined function \"%s\"\n"
+                       ,id_node->line,id_node->sub_data);
+                Type *type=(Type *)malloc(sizeof(Type));
+                type->kind=basic;
+                (type->u).basic=0;
+                return type;
+            }
+        }
+        else if(root->childnum==1)
+            return travel_exp_tree(root->childNode[1]);
+        else if(root->childnum==3){
+            Type *type,*num;
+            type=travel_exp_tree(root->childNode[0]);
+            if(type==NULL||type->kind!=1){
+                printf("Error type 10 at line %d: \"%s\" must be an array\n",root->line,var->name);
+                return NULL;
+            }
+            num=travel_exp_tree(root->childNode[2]);
+            if((num->u).basic!=0)
+                printf("Error type 12 at line %d: Operands type mistaken\n",root->line);
+            return (type->u).array.elem;
+        }
+        else{
+            if(!strcmp(root->childNode[1]->data,"DOT")){
+                Type *type=travel_exp_tree(root->childNode[0]);
+                if(type==NULL)
+                    return NULL;
+                else if(type->kind!=2){
+                    printf("Error type 13 at line %d:Illegal use of '.'\n" ,root->line);
+                    return type;
+                }
+                FieldList *temp=(type->u).structure;
+                temp=(temp->type->u).structure;
+                while(temp!=NULL){
+                    if(!strcmp(temp->name,(root->childNode[2])->sub_data))
+                        return temp->type;
+                    temp=temp->tail;
+                }
+                printf("Error type 14 at line %d: Un-existed field \"%s\"\n",
+                       root->line,(root->childNode[2])->sub_data);
+                return NULL;
+            } 
+            else {
+                if(!strcmp(root->childNode[1]->data,"Exp"))
+                    return travel_exp_tree(root->childNode[1]);
+                Type *type1=travel_exp_tree(root->childNode[0]);
+                Type *type2=travel_exp_tree(root->childNode[2]);
+                if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
+                    charge_right_value(root->childNode[0]);
+                }
+                if(!charge_type_equal(type1,type2))
+                    return NULL;
+                return type1;
+            }
+        }    
+    }
 }
+/*判断存在非法的左值操作数*/
+void charge_right_value(struct TreeNode *root){
+    if(root!=NULL){
+        if(!strcmp(root->data,"INT")||!strcmp(root->data,"FLOAT"))
+            printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable\n",
+                  root->line);
+        int i=0;
+        for(i=0;i<=root->childnum;i++)
+            charge_right_value(root->childNode[i]);
+    }
+}
+/*获取函数参数类型，传递到str*/
+void copyStr(FieldList* myStr, char *str){
+    if(myStr!=NULL){
+        switch((myStr->type)->kind){
+            case 0:{
+                if(((myStr->type)->u).basic==0)
+                    strcpy(str,"int");
+                else
+                    strcpy(str,"float");
+                break;
+            }
+            case 1:{
+                strcpy(str,"array");
+                break;
+            }
+            case 2:{
+                strcpy(str,"struct");
+                break;
+            }
+        }
+        myStr=myStr->tail;
+    }
+    else strcpy(str,"");
+    while(myStr!=NULL){
+        switch(myStr->type->kind){
+            case 0:{
+                if((myStr->type->u).basic==0)
+                    strcat(str," ,int");
+                else
+                    strcat(str," ,float");
+                break;
+            }
+            case 1:{
+                strcat(str," ,array");
+                break;
+            }
+            case 2:{
+                strcat(str," ,struct ");
+                strcat(str,myStr->name);
+                break;
+            }   
+        }
+        myStr=myStr->tail;   
+    }
+}
+/*遍历stmt的子树*/
 void travel_stmt_tree(struct TreeNode *root){
+    printf("travel_stmt_tree\n");
+    FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     if(root->childnum==1){
         Type *type=travel_exp_tree(root->childNode[0]);
         if(type==NULL){
             if(root->childNode[0]->childnum==2){
                 if(!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))
                     printf("Error type 5 at %d: Type mismached\n",root->line);
-                else if(!strcmp(root->childNode[0]->childNode[1]->data,"Exp"))
+                else if(!strcmp(root->childNode[0]->childNode[2]->data,"Exp"))
                     printf("Error type 7 at %d: Operands type mismached\n",root->line);
             }
         }
@@ -372,4 +563,82 @@ void travel_stmt_tree(struct TreeNode *root){
         travel_grammer_tree(root->childNode[6]);
     }
 }
-
+/*判断函数参数是否一致*/
+bool charge_args_equal(FieldList *args1,FieldList *args2){
+    FieldList *p,*q;
+    p=args1;
+    q=args2;
+    while(p!=NULL){
+        if(q==NULL)
+            return false;
+        switch(p->type->kind){
+            case 0:{
+                if(q->type->kind!=0)
+                    return false;
+                else if((q->type->u).basic!=(p->type->u).basic)
+                    return false;
+                break;
+            }
+            case 1:{
+                if(q->type->kind!=1)
+                    return false;
+                break;
+            }
+            case 2:{
+                if(q->type->kind!=2)
+                    return false;
+                if(!strcmp(q->name,p->name))
+                    return false;
+                break;
+            }
+        }
+        p=p->tail;
+        q=q->tail;
+    }
+    if(q!=NULL)
+        return false;
+    return true;
+}
+/*遍历args的子树*/
+FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
+    int i=0;
+    if(root!=NULL){
+        FieldList *temp=NULL;
+        if(!strcmp(root->data,"ID")){
+            temp=fetch(root->sub_data,varList);
+            if(temp==NULL){
+                printf("Error type 1 at line %d: Undefined variable \"%s\"\n",root->line,root->sub_data);
+                temp=(FieldList *)malloc(sizeof(FieldList));
+                temp->type=(Type *)malloc(sizeof(Type));
+                temp->type->kind=basic;
+                (temp->type->u).basic=0;
+            }
+        }
+        else if(!strcmp(root->data,"INT")){
+            temp=(FieldList *)malloc(sizeof(FieldList));
+            temp->type=(Type *)malloc(sizeof(Type));
+            temp->type->kind=basic;
+            (temp->type->u).basic=0;
+        }
+        else if(!strcmp(root->data,"FLOAT")){
+            temp=(FieldList *)malloc(sizeof(FieldList));
+            temp->type=(Type *)malloc(sizeof(Type));
+            temp->type->kind=basic;
+            (temp->type->u).basic=1;
+        }
+        if(temp!=NULL){
+            if(args==NULL)
+                args=temp;
+            else{
+                FieldList *p=args;
+                while(p->tail!=NULL)
+                    p=p->tail;
+                p->tail=temp;
+                temp->tail=NULL;
+            }
+        }
+        for(i=0;i<=root->childnum;i++)
+            args=travel_args_tree(root->childNode[i],args);
+    }
+    return args;
+}

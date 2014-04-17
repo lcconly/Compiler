@@ -22,7 +22,7 @@ bool insert(FieldList *node,FieldList **list){
 	FieldList *head,*p,*q;
 	head=list[index];
 	if(head==NULL){
-		printf("insert null\n");
+		//printf("insert null\n");
 		node->tail=NULL;
 		list[index]=node;
 	}
@@ -43,11 +43,14 @@ FieldList *fetch(char* name,FieldList **list){
 	unsigned int index=hash_pjw(name);
 	FieldList *p;
 	p=list[index];
-	//printf("get\n");
+	printf("get\n");
 	while(p!=NULL){
 		//printf("while\n");
-		if(strcmp(p->name,name)==0)
+		//printf("%x\n",p);
+		if(!strcmp(p->name,name)){
+			//printf("get func: %s\n",p->name);
 			return p;
+		}
 		p=p->tail;
 	}
 	//printf("get\n");

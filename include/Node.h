@@ -15,7 +15,10 @@ struct TreeNode{
 	struct TreeNode* childNode[MAXCHILD];
 };
 struct TreeNode *root;
+/*将节点插入到父*/
 void addNodeToParent(struct TreeNode **parent,struct TreeNode *child);
+/*创建节点*/
 void CreateNode(struct TreeNode **Node,char* name,char* sub_name,int line);
+/*打印树*/
 void printTree(struct TreeNode* root);
 #endif

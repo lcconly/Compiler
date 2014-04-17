@@ -1,5 +1,5 @@
-struct Position {
-float x, y;
-int x; };
+int func(int i) {
+return i; }
 int main() {
+func(1); 
 }

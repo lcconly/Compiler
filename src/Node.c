@@ -1,4 +1,5 @@
 #include"../include/Node.h"
+/*创建节点*/
 void CreateNode(struct TreeNode **node,char* name,char* sub_name,int line){
 	*node = (struct TreeNode*)malloc(sizeof(struct TreeNode));
 	strcpy((*node)->data, name);
@@ -9,6 +10,7 @@ void CreateNode(struct TreeNode **node,char* name,char* sub_name,int line){
 	for(i=0;i<MAXCHILD;i++)
 		(*node)->childNode[i]=NULL;
 }
+/*将节点插入到父*/
 void addNodeToParent(struct TreeNode **parent,struct TreeNode *child){
 	if(child == NULL) return;
 	if((*parent)->childNode[(*parent)->childnum+1] == NULL){
@@ -23,6 +25,7 @@ void addNodeToParent(struct TreeNode **parent,struct TreeNode *child){
 		return;
 	}
 }
+/*打印树*/
 void printTree(struct TreeNode* root){
     int i,j;
     for(i=0;i<=root->childnum;i++){

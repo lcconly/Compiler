@@ -24,11 +24,16 @@ struct Type_{
 struct FieldList_{
     char* name;
     Type *type;
+	FieldList *variable;
     FieldList *tail;
 };
 
+/*hash_pjw*/
 unsigned int hash_pjw(char *name);
+/*insert node to the list*/
 bool insert(FieldList *node,FieldList **list);
+/*fetch the node from the list*/
 FieldList *fetch(char* name,FieldList **list);
+/*print the whole list*/
 void show_hash_table(FieldList **list); 
 #endif 
