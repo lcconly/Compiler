@@ -122,7 +122,7 @@ void travel_def_tree(struct TreeNode *root){
         !strcmp(declist_node->data,"ExtDecList"))
         travel_extdeclist_tree(declist_node,type);
     else if(!strcmp(declist_node->data,"FunDec")){
-        printf("travel_fundec_tree\n");
+        //printf("travel_fundec_tree\n");
         func=(FieldList*)malloc(sizeof(FieldList));
         func->name=declist_node->childNode[0]->sub_data;
         func->type=type;
@@ -130,8 +130,11 @@ void travel_def_tree(struct TreeNode *root){
         if(declist_node->childnum==2)
             func->variable=NULL;
         else{
+			field=NULL;
             field=travel_fundec_tree(declist_node->childNode[2],field);
             func->variable=field;
+            //printf("name : %s\n",field->name);
+			//printf("kind : %d\n",field->type->kind);
         }
         if(!insert(func,funcList))
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
@@ -245,16 +248,17 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
     if(root!=NULL)
         for(i=0;i<=root->childnum;i++){
             if(!strcmp(root->data,"ParamDec")){
-                printf("add ParamDec !!!!!!!!!!!!\n");
+                //printf("add ParamDec !!!!!!!!!!!!\n");
                 struct TreeNode *specifier_node=root->childNode[0];
                 struct TreeNode *vardec_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
                 FieldList *var=(FieldList *)malloc(sizeof(FieldList));
                 //printf("travel_fundec_tree\n");
                 var=travel_vardec_tree(vardec_node);
-                //printf("%d %s \n",type->kind,var->name);
+                //if(var==NULL) printf("!!!!!!!!!\n");
+				//printf("%d %s \n",type->kind,var->name);
                 travel_extdeclist_tree(root,type);
-                printf("%d %s \n",type->kind,var->name);
+                //printf("%d %s \n",type->kind,var->name);
                 if(var->type==NULL){
                     var->type=type;
                 }
@@ -266,16 +270,20 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
                 }
                 if(structfield==NULL){
                     structfield=var;
-                    structfield->tail=NULL;
+					//printf("name : %s \n",var->name);
+                    structfield->variable=NULL;
                 }
                 else{
                     FieldList *p=structfield;
-                    while(p->tail!=NULL)
-                        p=p->tail;
-                    p->tail=var;
-                    var->tail=NULL;
+                    while(p->variable!=NULL)
+                        p=p->variable;
+					//printf("name : %s \n",var->name);
+                    p->variable=var;
+                    var->variable=NULL;
                 }
-                break;
+				//if(structfield==NULL) printf("!!!!!!!!!!\n");
+                //printf("%s %d=======\n",structfield->name,structfield->type->kind);
+				break;
             }
             structfield=travel_fundec_tree(root->childNode[i],structfield);
         }
@@ -389,27 +397,29 @@ Type* travel_exp_tree(struct TreeNode *root){
             struct TreeNode *id_node=root->childNode[0];
             var=fetch(id_node->sub_data,funcList);
             //show_hash_table(funcList);
-            printf("func: %s ~~~~~~~\n",id_node->sub_data);
+            //printf("func: %s ~~~~~~~\n",id_node->sub_data);
             FieldList *args=(FieldList *)malloc(sizeof(FieldList));
             if(var!=NULL){
                 if(root->childnum==3){
+					args=NULL;
                     args=travel_args_tree(root->childNode[2],args);
-                    //printf("%x",args);
+                    //printf("%x\n",args);
                 }
                 else args=NULL;
-                printf("%x\n",var->variable);
+                //printf("%x\n",var->variable);
                 if(!charge_args_equal(var->variable,args)){
                     //printf("%x",args);
                     char str1[MAXDATA],str2[MAXDATA];
                     FieldList *myStr=var->variable;
-                    printf("%x\n",var->variable);
+                    //printf("%x\n",var->variable);
                     copyStr(myStr,str1);
-                    printf("str: %s !!!!!!!!!!!\n",str1);
+                    //printf("str: %s !!!!!!!!!!!\n",str1);
                     myStr=args;
-                    copyStr(myStr,str2);
-                    printf("Error type 9 at line %d: The method \"%s(%s)\"\
-                           is not applicable for the arguments \"(%s)\"\n",
-                           root->line,var->name,str1,str2);
+                    copyStr_args(myStr,str2);
+					//printf("str2 : %s\n",str2);
+                    printf("Error type 9 at line %d: The method \"%s(%s)\" is"\
+							" not applicable for the arguments \"(%s)\"\n",
+							root->line,var->name,str1,str2);
                 }
                 return var->type;
             }
@@ -507,6 +517,51 @@ void copyStr(FieldList* myStr, char *str){
                 break;
             }
         }
+        myStr=myStr->variable;
+    }
+    else strcpy(str,"");
+    while(myStr!=NULL){
+        switch(myStr->type->kind){
+            case 0:{
+                if((myStr->type->u).basic==0)
+                    strcat(str," ,int");
+                else
+                    strcat(str," ,float");
+                break;
+            }
+            case 1:{
+                strcat(str," ,array");
+                break;
+            }
+            case 2:{
+                strcat(str," ,struct ");
+                strcat(str,myStr->name);
+                break;
+            }   
+        }
+        myStr=myStr->variable;   
+    }
+}
+/*args遍历传递参数类型到str*/
+void copyStr_args(FieldList* myStr, char *str){
+    if(myStr!=NULL){
+        switch((myStr->type)->kind){
+            case 0:{
+                if(((myStr->type)->u).basic==0)
+                    strcpy(str,"int");
+                else
+                    strcpy(str,"float");
+                break;
+            }
+            case 1:{
+                strcpy(str,"array");
+                break;
+            }
+            case 2:{
+                strcpy(str,"struct");
+                break;
+            }
+        }
         myStr=myStr->tail;
     }
     else strcpy(str,"");
@@ -534,7 +589,7 @@ void copyStr(FieldList* myStr, char *str){
 }
 /*遍历stmt的子树*/
 void travel_stmt_tree(struct TreeNode *root){
-    printf("travel_stmt_tree\n");
+    //printf("travel_stmt_tree\n");
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     if(root->childnum==1){
         Type *type=travel_exp_tree(root->childNode[0]);
@@ -568,6 +623,7 @@ bool charge_args_equal(FieldList *args1,FieldList *args2){
     FieldList *p,*q;
     p=args1;
     q=args2;
+    //if(p==NULL)return false;
     while(p!=NULL){
         if(q==NULL)
             return false;
@@ -592,7 +648,7 @@ bool charge_args_equal(FieldList *args1,FieldList *args2){
                 break;
             }
         }
-        p=p->tail;
+        p=p->variable;
         q=q->tail;
     }
     if(q!=NULL)

@@ -43,7 +43,7 @@ FieldList *fetch(char* name,FieldList **list){
 	unsigned int index=hash_pjw(name);
 	FieldList *p;
 	p=list[index];
-	printf("get\n");
+	//printf("get\n");
 	while(p!=NULL){
 		//printf("while\n");
 		//printf("%x\n",p);

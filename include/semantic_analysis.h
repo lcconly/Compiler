@@ -44,6 +44,8 @@ bool charge_args_equal(FieldList *args1,FieldList *args2);
 FieldList*  travel_args_tree(struct TreeNode *root,FieldList *args);
 /*获取函数参数类型，传递到str*/
 void copyStr(FieldList* myStr, char *str);
+/*args遍历传递参数类型到str*/
+void copyStr_args(FieldList* myStr, char *str);
 /*判断存在非法的左值操作数*/
 void charge_right_value(struct TreeNode *root);
 #endif

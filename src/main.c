@@ -13,8 +13,8 @@ int main(int argc,char** argv){
 	//yydebug=1;
     yyparse();
 	if(hasError==0){
-		printf("%s (%d)\n",root->data,root->line);
-		printTree(root);
+		//printf("%s (%d)\n",root->data,root->line);
+		//printTree(root);
         travel_grammer_tree(root);
 	}
     return 0;
