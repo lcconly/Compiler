@@ -196,6 +196,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
             else{
                 FieldList *p,*q;
                 p=((field->type)->u).structure;
+                if(p==NULL) printf("!!!!!!!!!!!!!!!!\n");
                 while(p!=NULL){
                     q=p;
                     if(!strcmp(p->name,var->name)){
@@ -205,6 +206,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                     }
                     p=p->tail;
                 }
+                //if(var==NULL) printf("!!!!!!!!!!!!!");
                 q->tail=var;
                 var->tail=NULL;
             }
@@ -497,32 +499,37 @@ Type* travel_exp_tree(struct TreeNode *root){
                 Type *type2=travel_exp_tree(root->childNode[2]);
                 if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
                     if(root->childNode[0]!=NULL)
-                        if(!strcmp(root->childNode[0]->childNode[0]->data,"INT")
-                            ||!strcmp(root->childNode[0]->childNode[0]->data,"FLOAT")||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"AND"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"OR"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"RELOP"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"PLUS"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"MINUS"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"STAR"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"DIV"))||
-                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"LP"))||
-                          (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"NOT"))||
-                          (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"MINUS"))||
-                           (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"LP")&&((root->childNode[0]->childNode[1]->childnum!=0)||(root->childNode[0]->childNode[1]->childnum==0&&!strcmp(root->childNode[0]->childNode[1]->childNode[0]->data,"ID")))))
-
+                        if(!charge_lefthand_variable(root->childNode[0]))
                             printf("Error type 6 at line %d: The left-hand side"\
                                " of an assignment must be a variable\n",root->line);
                 }
                 //printf("name :%s %d name : %s %d \n",root->childNode[0]->data,
                 //       (type1->u).basic,root->childNode[2]->data,(type2->u).basic);
                 if(!charge_type_equal(type1,type2))
-                    return NULL;
+                    return NULL; 
                 return type1;
             }
         }    
     }
+}
+bool charge_lefthand_variable(struct TreeNode *root){
+    if(!strcmp(root->childNode[0]->data,"INT")
+        ||!strcmp(root->childNode[0]->data,"FLOAT")||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"AND"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"OR"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"RELOP"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"PLUS"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"MINUS"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"STAR"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"DIV"))||
+        (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"LP"))||
+        (root->childNode[0]!=NULL&&!strcmp(root->childNode[0]->data,"NOT"))||
+        (root->childNode[0]!=NULL&&!strcmp(root->childNode[0]->data,"MINUS")))
+            return false;
+    else if(root->childNode[0]!=NULL&&!strcmp(root->childNode[0]->data,"LP"))
+            return charge_lefthand_variable(root->childNode[1]);
+    return true;
+
 }
 /*获取函数参数类型，传递到str*/
 void copyStr(FieldList* myStr, char *str){

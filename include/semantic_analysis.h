@@ -46,4 +46,6 @@ FieldList*  travel_args_tree(struct TreeNode *root,FieldList *args);
 void copyStr(FieldList* myStr, char *str);
 /*args遍历传递参数类型到str*/
 void copyStr_args(FieldList* myStr, char *str);
+/*左值操作判断*/
+bool charge_lefthand_variable(struct TreeNode *root);
 #endif
