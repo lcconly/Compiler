@@ -18,6 +18,7 @@ void travel_grammer_tree(struct TreeNode *root){
             continue;
         }
         else if(!strcmp(temp->data,"Stmt")&&temp->childnum>0){
+            //printf("num num : %d\n",temp->childnum);
             travel_stmt_tree(temp);
             continue;
         }
@@ -141,6 +142,7 @@ void travel_def_tree(struct TreeNode *root){
         }
         if(!insert(func,funcList))
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
+        travel_declist_tree(root->childNode[2],type,field);
         travel_grammer_tree(root->childNode[2]);
     }
 }
@@ -150,6 +152,7 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
     if(root!=NULL)
         for(i=0;i<=root->childnum;i++){
             if(!strcmp(root->data,"Def")){
+                //printf("!!!!!!\n");
                 struct TreeNode *specifier_node=root->childNode[0];
                 struct TreeNode *declist_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
@@ -167,10 +170,12 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
     int i;
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
     for(i=0; i<=root->childnum;i++) {
-        if(!strcmp(root->data,"VarDec")){
+        if(!strcmp(root->data,"Dec")){
+            //printf("~~~~~~~~\n");
+            struct TreeNode *node=root->childNode[0];
             FieldList *var=(FieldList *)malloc(sizeof(FieldList));
             //printf("travel_declist_tree\n");
-            var=travel_vardec_tree(root);
+            var=travel_vardec_tree(node);
             if(var->type==NULL)
                 var->type=type;
             else{
@@ -195,13 +200,20 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                     q=p;
                     if(!strcmp(p->name,var->name)){
                         printf("Error type 15 at line %d: Redefined field '%s'\n",
-                               root->line,var->name);
+                               node->line,var->name);
                         return field;
                     }
                     p=p->tail;
                 }
                 q->tail=var;
                 var->tail=NULL;
+            }
+            if(root->childnum==2){
+                //printf("!!!!!!!!!!!!!!!\n");
+                Type *ty=travel_exp_tree(root->childNode[2]);
+                if(!charge_type_equal(field->type,ty))
+                    printf("Error type 5 at line %d: Type mismached\n",node->line);
+                    
             }
             //printf("var in declist %s\n",var->name);
             break;
@@ -366,13 +378,13 @@ Type* travel_exp_tree(struct TreeNode *root){
             var=fetch(id_node->sub_data,varList);
             //if(func==NULL)printf("!!!!!!!!!!\n");
             if(var==NULL&&func!=NULL){
-                FieldList *p=func->tail;
+                FieldList *p=func->variable;
                 while(p!=NULL){
                     if(!strcmp(p->name,id_node->sub_data)){
                         var=p;
                         break;
                     }
-                    p=p->tail;
+                    p=p->variable;
                 }
             }
             if(var==NULL){
@@ -383,6 +395,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 (type->u).basic=0;
                 return type;
             }
+            //printf("var : %s type : %d \n",var->name,(var->type->u).basic);
             return var->type;
         }
         else if(root->childnum==0 && !strcmp((root->childNode[0])->data,"INT")){
@@ -456,6 +469,7 @@ Type* travel_exp_tree(struct TreeNode *root){
             return (type->u).array.elem;
         }
         else{
+            //printf("num: %d \n",root->childnum);
             if(!strcmp(root->childNode[1]->data,"DOT")){
                 Type *type=travel_exp_tree(root->childNode[0]);
                 if(type==NULL)
@@ -476,17 +490,33 @@ Type* travel_exp_tree(struct TreeNode *root){
                 return NULL;
             } 
             else {
-                if(!strcmp(root->childNode[1]->data,"Exp"))
-                    return travel_exp_tree(root->childNode[1]);
+                if(!strcmp(root->childNode[1]->data,"Exp")){
+                    return travel_exp_tree(root->childNode[1]);}
                 Type *type1=travel_exp_tree(root->childNode[0]);
+                //printf("name: %s \n",root->childNode[0]->childNode[0]->sub_data);
                 Type *type2=travel_exp_tree(root->childNode[2]);
                 if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
                     if(root->childNode[0]!=NULL)
                         if(!strcmp(root->childNode[0]->childNode[0]->data,"INT")
-                            ||!strcmp(root->childNode[0]->childNode[0]->data,"FLOAT"))
+                            ||!strcmp(root->childNode[0]->childNode[0]->data,"FLOAT")||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"AND"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"OR"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"RELOP"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"PLUS"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"MINUS"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"STAR"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"DIV"))||
+                          (root->childNode[0]->childNode[1]!=NULL&&!strcmp(root->childNode[0]->childNode[1]->data,"LP"))||
+                          (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"NOT"))||
+                          (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"MINUS"))||
+                           (root->childNode[0]->childNode[0]!=NULL&&!strcmp(root->childNode[0]->childNode[0]->data,"LP")&&((root->childNode[0]->childNode[1]->childnum!=0)||(root->childNode[0]->childNode[1]->childnum==0&&!strcmp(root->childNode[0]->childNode[1]->childNode[0]->data,"ID")))))
+
                             printf("Error type 6 at line %d: The left-hand side"\
                                " of an assignment must be a variable\n",root->line);
                 }
+                //printf("name :%s %d name : %s %d \n",root->childNode[0]->data,
+                //       (type1->u).basic,root->childNode[2]->data,(type2->u).basic);
                 if(!charge_type_equal(type1,type2))
                     return NULL;
                 return type1;
@@ -587,15 +617,16 @@ void copyStr_args(FieldList* myStr, char *str){
 /*遍历stmt的子树*/
 void travel_stmt_tree(struct TreeNode *root){
     //printf("travel_stmt_tree\n");
+    //printf("num : %d\n",root->childnum);
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     if(root->childnum==1){
         Type *type=travel_exp_tree(root->childNode[0]);
         if(type==NULL){
             if(root->childNode[0]->childnum==2){
                 if(!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))
-                    printf("Error type 5 at %d: Type mismached\n",root->line);
+                    printf("Error type 5 at line %d: Type mismached\n",root->line);
                 else if(!strcmp(root->childNode[0]->childNode[2]->data,"Exp"))
-                    printf("Error type 7 at %d: Operands type mismached\n",root->line);
+                    printf("Error type 7 at line %d: Operands type mismached\n",root->line);
             }
         }
     }
@@ -606,11 +637,16 @@ void travel_stmt_tree(struct TreeNode *root){
         } 
     }
     else if(root->childnum==4){
+        //printf("name root : %d\n",root->childnum);
         travel_exp_tree(root->childNode[2]);
+        //printf("name : %d\n",root->childNode[4]->childnum);
+        travel_stmt_tree(root->childNode[4]);
         travel_grammer_tree(root->childNode[4]);
     }
     else if(root->childnum==6){
         travel_exp_tree(root->childNode[2]);
+        travel_stmt_tree(root->childNode[4]);
+        travel_stmt_tree(root->childNode[6]);
         travel_grammer_tree(root->childNode[4]);
         travel_grammer_tree(root->childNode[6]);
     }
