@@ -142,7 +142,8 @@ void travel_def_tree(struct TreeNode *root){
         }
         if(!insert(func,funcList))
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
-        travel_declist_tree(root->childNode[2],type,field);
+        if(field->type==NULL)
+            travel_declist_tree(root->childNode[2],type,field);
         travel_grammer_tree(root->childNode[2]);
     }
 }
@@ -190,7 +191,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 (temp->u).structure=var;
                 field->type=temp;
                 //printf("var in declist--------- %s\n",var->name);
-                //printf("type in declist------- %s\n",(field->type->u).structure->name);
+                printf("type in declist------- %s\n",(field->type->u).structure->name);
                 //printf("~~~~~~~~~~~~~~~~~~~\n");
             }
             else{
