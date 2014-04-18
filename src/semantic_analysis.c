@@ -190,14 +190,15 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 temp->kind=structure;
                 (temp->u).structure=var;
                 field->type=temp;
+                printf("kind %d \n",(field->type->u).basic);
                 //printf("var in declist--------- %s\n",var->name);
-                printf("type in declist------- %s\n",(field->type->u).structure->name);
+                //printf("type in declist------- %s\n",(field->type->u).structure->name);
                 //printf("~~~~~~~~~~~~~~~~~~~\n");
             }
             else{
                 FieldList *p,*q;
                 p=((field->type)->u).structure;
-                if(p==NULL) printf("!!!!!!!!!!!!!!!!\n");
+                //if(p==NULL) printf("!!!!!!!!!!!!!!!!\n");
                 while(p!=NULL){
                     q=p;
                     if(!strcmp(p->name,var->name)){
@@ -214,8 +215,12 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
             if(root->childnum==2){
                 //printf("!!!!!!!!!!!!!!!\n");
                 Type *ty=travel_exp_tree(root->childNode[2]);
-                if(!charge_type_equal(field->type,ty))
+                //printf("kind %d \n",(field->type->u).basic);
+                if(field->type->kind!=structure&&!charge_type_equal(field->type,ty))
                     printf("Error type 5 at line %d: Type mismached\n",node->line);
+                else if(field->type->kind==structure&&!strcmp(root->childNode[1]->data,"ASSIGNOP"))
+                    printf("Error type 15 at line %d: Field '%s' defined error\n",
+                           root->line,var->name);
                     
             }
             //printf("var in declist %s\n",var->name);
@@ -441,6 +446,7 @@ Type* travel_exp_tree(struct TreeNode *root){
 							" not applicable for the arguments \"(%s)\"\n",
 							root->line,var->name,str1,str2);
                 }
+                //printf("kind %d \n",(var->type->u).basic);
                 return var->type;
             }
             else if(fetch(id_node->sub_data,varList)!=NULL){
@@ -506,8 +512,15 @@ Type* travel_exp_tree(struct TreeNode *root){
                 }
                 //printf("name :%s %d name : %s %d \n",root->childNode[0]->data,
                 //       (type1->u).basic,root->childNode[2]->data,(type2->u).basic);
-                if(!charge_type_equal(type1,type2))
-                    return NULL; 
+                if(!charge_type_equal(type1,type2)){
+                    //return NULL; 
+                    if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
+                        //printf("!!!!!\n");
+                        printf("Error type 5 at line %d: Type mismached\n",root->line);}
+                    else if(type2!=NULL)
+                        printf("Error type 7 at line %d: Operands type mismached\n",root->line);
+                    return type1;
+                }
                 return type1;
             }
         }    
@@ -629,14 +642,14 @@ void travel_stmt_tree(struct TreeNode *root){
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     if(root->childnum==1){
         Type *type=travel_exp_tree(root->childNode[0]);
-        if(type==NULL){
-            if(root->childNode[0]->childnum==2){
-                if(!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))
-                    printf("Error type 5 at line %d: Type mismached\n",root->line);
-                else if(!strcmp(root->childNode[0]->childNode[2]->data,"Exp"))
-                    printf("Error type 7 at line %d: Operands type mismached\n",root->line);
-            }
-        }
+        //if(type==NULL){
+            //if(root->childNode[0]->childnum==2){
+            //    if(!strcmp(root->childNode[0]->childNode[2]->data,"Exp"))
+            //        printf("Error type 7 at line %d: Operands type mismached\n",root->line);
+            //    else if(!strcmp(root->childNode[0]->childNode[1]->data,"ASSIGNOP"))
+            //        printf("Error type 5 at line %d: Type mismached\n",root->line);
+            //}
+        //}
     }
     else if(root->childnum==2){
         Type *type=travel_exp_tree(root->childNode[1]);
