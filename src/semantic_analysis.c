@@ -554,7 +554,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 Type *type2=travel_exp_tree(root->childNode[2]);
                 if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
                     if(root->childNode[0]!=NULL)
-                        if(!charge_lefthand_variable(root->childNode[0]))
+                        if(!charge_lefthand_variable(root->childNode[0])||type1->kind==array)
                             printf("Error type 6 at line %d: The left-hand side"\
                                " of an assignment must be a variable\n",root->line);
                 }
