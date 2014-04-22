@@ -494,8 +494,13 @@ Type* travel_exp_tree(struct TreeNode *root){
                 return type;
             }
         }
-        else if(root->childnum==1)
-            return travel_exp_tree(root->childNode[1]);
+        else if(root->childnum==1){
+            Type *temp_not=travel_exp_tree(root->childNode[1]);
+            if(!strcmp(root->childNode[0]->data,"NOT"))
+                if(temp_not!=NULL&&(temp_not->kind==2||temp_not->kind==1||(temp_not->kind==0&&(temp_not->u).basic==1)))
+                printf("Error type 7 at line %d: Operands type mismached\n",root->line);
+            return temp_not;
+        }
         else if(root->childnum==3){
             Type *type,*num;
             type=travel_exp_tree(root->childNode[0]);
@@ -560,10 +565,17 @@ Type* travel_exp_tree(struct TreeNode *root){
                     if(!strcmp(root->childNode[1]->data,"ASSIGNOP")&&!charge_type_equal(type1,type2)){
                         //printf("!!!!!\n");
                         printf("Error type 5 at line %d: Type mismached\n",root->line);}
-                    else if(type2!=NULL&&strcmp(root->childNode[1]->data,"ASSIGNOP"))
+                    else if((type2!=NULL&&strcmp(root->childNode[1]->data,"ASSIGNOP"))
+                           ||(type2!=NULL)&&(!strcmp(root->childNode[1]->data,"AND")||!strcmp(root->childNode[1]->data,"OR")&&(type1->u).basic!=0))
                         printf("Error type 7 at line %d: Operands type mismached\n",root->line);
                     return type1;
                 }
+                if(charge_type_equal(type1,type2)&&type2!=NULL&&
+                   (!strcmp(root->childNode[1]->data,"AND")||
+                    !strcmp(root->childNode[1]->data,"OR"))&&(type1->u).basic!=0){
+                        printf("Error type 7 at line %d: Operands type mismached\n",root->line);
+                        return type1;
+                    }
                 return type1;
             }
         }    
