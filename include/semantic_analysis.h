@@ -10,7 +10,7 @@
 #include"hash_table.h"
 #include"Node.h"
 FieldList* varList[MAXHARSHSIZE];
-FieldList* structList[MAXHARSHSIZE];
+//FieldList* structList[MAXHARSHSIZE];
 FieldList* funcList[MAXHARSHSIZE];
 Type *funType;
 FieldList *func;

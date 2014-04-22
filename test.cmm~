@@ -1,39 +1,30 @@
-struct TempStruct
-{
-int array1[100];
-float array2[10][10];
-};
-struct TempStruct2
-{
-int array3[100];
-float array4[10][10];
-};
-struct TempStruct3
-{
-int array5[100];
-float array6[4][25][1];
-};
 struct Complex
 {
 float real, image;
-struct TempStruct field[10];
+struct Attribute attr;
 };
-struct Complex2
+int abs(int y)
 {
-float q1;
-float q2;
-struct TempStruct2 field2[5];
-};
-struct Complex3
+if (y >= 0) return y;
+else return -y;
+}
+float abs2(struct Complex x){
+struct Complex2 z;
+return x.real * x.real + x.image * x.image;
+}
+int main()
 {
-float q3, q4;
-struct TempStruct3 field3[5];
-};
-int main(int a[1])
-{struct Complex c1;
-struct Complex2 c2;
-struct Complex3 c3;
-c1 = c2;
-c2 = c3;
-c3 = c1;
+int i, j, a[10][10];
+struct Attribute
+{
+int mag;
+} k;
+i = 0;
+if (i <= 10) j = k.mag = abs(i);
+while (i < 10)
+{
+j = j - 2;
+i = i + 1;
+}
+k && k;
 }
