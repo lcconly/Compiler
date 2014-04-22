@@ -599,7 +599,6 @@ bool charge_lefthand_variable(struct TreeNode *root){
     else if(root->childNode[0]!=NULL&&!strcmp(root->childNode[0]->data,"LP"))
             return charge_lefthand_variable(root->childNode[1]);
     return true;
-
 }
 /*获取函数参数类型，传递到str*/
 void copyStr(FieldList* myStr, char *str){
