@@ -3,9 +3,17 @@ struct Temp1 {
 	float j; 
 	struct	{
 		int x;		
-	}a;	
+	} a;	
+};
+struct Temp2 {
+	int m;
+	float n; 
+	struct	{
+		float y;		
+	} b;	
 };
 int main() {
 	struct Temp1 t1; 
-	t.a.x=0;
+	struct Temp2 t2;
+	t1=t2;
 }

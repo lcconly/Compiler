@@ -42,7 +42,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         return type;
     }
     else{//结构类型
-        //printf("struct\n");
+        printf("struct\n");
         struct TreeNode *tag_node=type_node->childNode[1];
         Type *type=(Type *)malloc(sizeof(Type));
         type->kind=structure;
@@ -51,7 +51,8 @@ Type* travel_specifier_tree(struct TreeNode *root){
             FieldList *field=(FieldList *)malloc(sizeof(FieldList));
             field=travel_deflist_tree(deflist_node,field);
             (type->u).structure=field;
-            //if(field==NULL)printf("!!!!!!\n");
+            //printf("!!!!!!\n");
+            //printf("childnum : %d\n",tag_node->childnum);
             if(tag_node->childnum==0){
                 struct TreeNode *id_node=tag_node->childNode[0];
                 //printf("sub_data:++++++++++:%s\n",id_node->sub_data);
@@ -64,6 +65,16 @@ Type* travel_specifier_tree(struct TreeNode *root){
                     return NULL;
                 }
             }
+            return type;
+        }
+        else if(!strcmp(tag_node->data,"LC")){
+            struct TreeNode *deflist_node=type_node->childNode[2];
+            FieldList *field=(FieldList *)malloc(sizeof(FieldList));
+            field=travel_deflist_tree(deflist_node,field);
+            (type->u).structure=field;
+            ((type->u).structure)->name="";
+            //printf("!!!!!!\n");
+            //printf("childnum : %d\n",tag_node->childnum);
             return type;
         }
         else{
@@ -320,7 +331,8 @@ bool charge_struct_equal(Type *type1,Type *type2){
     //printf("struct 1 : %s\n",(type1->u).structure->name);
     //printf("struct 2 : %s\n",(type2->u).structure->name);
     //printf("charge_struct_equal!\n");
-    if(!strcmp((type1->u).structure->name,(type2->u).structure->name))
+    if(!strcmp((type1->u).structure->name,(type2->u).structure->name)
+       &&strcmp((type1->u).structure->name,""))
         return true;
     else{
         FieldList *f1=((type1->u).structure->type->u).structure;
