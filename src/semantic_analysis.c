@@ -42,7 +42,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         return type;
     }
     else{//结构类型
-        printf("struct\n");
+        //printf("struct\n");
         struct TreeNode *tag_node=type_node->childNode[1];
         Type *type=(Type *)malloc(sizeof(Type));
         type->kind=structure;
