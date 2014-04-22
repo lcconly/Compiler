@@ -23,7 +23,7 @@ FieldList* travel_vardec_tree(struct TreeNode *root);
 /*遍历所有的定义*/
 void travel_def_tree(struct TreeNode *root);
 /*遍历deflist的declist*/
-FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList *field);
+FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList *field,int tag);
 /*遍历fundc*/
 FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield);
 /*遍历exp的子树*/
