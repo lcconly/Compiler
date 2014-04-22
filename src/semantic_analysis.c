@@ -13,12 +13,12 @@ void travel_grammer_tree(struct TreeNode *root){
     for(i=0; i<=root->childnum; i++){
         temp=root->childNode[i];
         if(!strcmp(temp->data,"Def") || !strcmp(temp->data,"ExtDef")){
-            printf("travel_grammer_tree\n");
+            //printf("travel_grammer_tree\n");
             travel_def_tree(temp);
             continue;
         }
         else if(!strcmp(temp->data,"Stmt")&&temp->childnum>0){
-            printf("num num : %d\n",temp->childnum);
+            //printf("num num : %d\n",temp->childnum);
             travel_stmt_tree(temp);
             continue;
         }
@@ -30,7 +30,7 @@ void travel_grammer_tree(struct TreeNode *root){
 Type* travel_specifier_tree(struct TreeNode *root){
     struct TreeNode* type_node=root->childNode[0];
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
-    printf("travel_specifier_tree\n");
+    //printf("travel_specifier_tree\n");
     if(!strcmp(type_node->data,"TYPE")){//普通类型
         //printf("Type\n");
         Type* type=(Type *)malloc(sizeof(Type));
@@ -87,7 +87,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
 FieldList* travel_vardec_tree(struct TreeNode *root){
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
-    printf("travel_vardec_tree!\n");
+    //printf("travel_vardec_tree!\n");
     if(root->childnum==0){
         struct TreeNode *id_node=root->childNode[0];
         var->name=id_node->sub_data;
@@ -114,7 +114,7 @@ FieldList* travel_vardec_tree(struct TreeNode *root){
 }
 /*遍历所有的定义*/
 void travel_def_tree(struct TreeNode *root){
-    printf("travel_def_tree\n");
+    //printf("travel_def_tree\n");
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
     struct TreeNode *specifier_node=root->childNode[0];
     struct TreeNode *declist_node=root->childNode[1];
@@ -150,7 +150,7 @@ void travel_def_tree(struct TreeNode *root){
 /*遍历deflist节点，包含全局变量和函数内变量*/
 FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
     int i;
-    printf("travel_deflist_tree!\n");
+    //printf("travel_deflist_tree!\n");
     if(root!=NULL)
         for(i=0;i<=root->childnum;i++){
             if(!strcmp(root->data,"Def")){
@@ -171,7 +171,7 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
 /*tag为1是函数内部定义，tag为0是结构内部定义*/
 FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field,int tag){
     int i;
-    printf("travel_declist_tree!\n");
+    //printf("travel_declist_tree!\n");
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
     for(i=0; i<=root->childnum;i++) {
         if(!strcmp(root->data,"Dec")){
@@ -192,6 +192,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 Type *temp=(Type*)malloc(sizeof(Type));
                 temp->kind=structure;
                 (temp->u).structure=var;
+                //var->tail=NULL;
                 field->type=temp;
                 //printf("kind %d \n",(field->type->u).basic);
                 //printf("var in declist--------- %s\n",var->name);
@@ -239,7 +240,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
 /*遍历全局变量列表*/
 void travel_extdeclist_tree(struct TreeNode *root,Type *type){
     int i;
-    printf("travel_extdeclist_tree\n");
+    //printf("travel_extdeclist_tree\n");
     //printf("name %s  childnum : %d\n",root->data,root->childnum);
     for(i=0;i<=root->childnum;i++){
         if(!strcmp(root->data,"VarDec")){
@@ -269,7 +270,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
 /*遍历fundc*/
 FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
     int i;
-    printf("travel_fundec_tree!\n");
+    //printf("travel_fundec_tree!\n");
     if(root!=NULL)
         for(i=0;i<=root->childnum;i++){
             if(!strcmp(root->data,"ParamDec")){
@@ -318,15 +319,17 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
 bool charge_struct_equal(Type *type1,Type *type2){
     //printf("struct 1 : %s\n",(type1->u).structure->name);
     //printf("struct 2 : %s\n",(type2->u).structure->name);
-    printf("charge_struct_equal!\n");
+    //printf("charge_struct_equal!\n");
     if(!strcmp((type1->u).structure->name,(type2->u).structure->name))
         return true;
     else{
         FieldList *f1=((type1->u).structure->type->u).structure;
         FieldList *f2=((type2->u).structure->type->u).structure;
         while(f1!=NULL&&f2!=NULL){
+            //printf("!!!!!!!!!!!!!!!!\n");
             if(!charge_type_equal(f1->type,f2->type))
                 return false;
+            //printf("!!!!!!!!!!!\n");
             f1=f1->tail;
             f2=f2->tail;
         }
@@ -337,6 +340,7 @@ bool charge_struct_equal(Type *type1,Type *type2){
 }
 /*判断两个type是否相等*/
 bool charge_type_equal(Type *type1,Type *type2){
+    //printf("charge_type_equal!\n");
     if(type1==NULL||type2==NULL)
         return false;
     else if(type1->kind!=type2->kind)
@@ -370,12 +374,18 @@ bool charge_type_equal(Type *type1,Type *type2){
                     if((p1->u).basic!=(p2->u).basic)
                         return false;
                 }
+                //else if(p1->kind==2)
+                //    return charge_struct_equal(p1,p2);
                 else
-                    return charge_type_equal(type1,type2);
+                    return charge_type_equal(p1,p2);
                 break;
             }
             case 2:{
                 return charge_struct_equal(type1,type2);
+                break;
+            }
+            default:{
+                printf("type error!!!\n");
                 break;
             }
         }
@@ -385,7 +395,7 @@ bool charge_type_equal(Type *type1,Type *type2){
 /*遍历exp的子树*/
 Type* travel_exp_tree(struct TreeNode *root){
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
-    printf("travel_exp_tree!\n");
+    //printf("travel_exp_tree!\n");
     if(root!=NULL){
         if(root->childnum==0 && !strcmp((root->childNode[0])->data,"ID")){
             struct TreeNode *id_node=root->childNode[0];
@@ -535,10 +545,10 @@ Type* travel_exp_tree(struct TreeNode *root){
                 if(!charge_type_equal(type1,type2)||
                   (charge_type_equal(type1,type2)&&type1->kind==structure)){
                     //return NULL; 
-                    if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
+                    if(!strcmp(root->childNode[1]->data,"ASSIGNOP")&&!charge_type_equal(type1,type2)){
                         //printf("!!!!!\n");
                         printf("Error type 5 at line %d: Type mismached\n",root->line);}
-                    else if(type2!=NULL)
+                    else if(type2!=NULL&&strcmp(root->childNode[1]->data,"ASSIGNOP"))
                         printf("Error type 7 at line %d: Operands type mismached\n",root->line);
                     return type1;
                 }
@@ -548,7 +558,7 @@ Type* travel_exp_tree(struct TreeNode *root){
     }
 }
 bool charge_lefthand_variable(struct TreeNode *root){
-    printf("charge_lefthand_variable!\n");
+    //printf("charge_lefthand_variable!\n");
     if(!strcmp(root->childNode[0]->data,"INT")
         ||!strcmp(root->childNode[0]->data,"FLOAT")||
         (root->childNode[1]!=NULL&&!strcmp(root->childNode[1]->data,"AND"))||
@@ -659,7 +669,7 @@ void copyStr_args(FieldList* myStr, char *str){
 }
 /*遍历stmt的子树*/
 void travel_stmt_tree(struct TreeNode *root){
-    printf("travel_stmt_tree\n");
+    //printf("travel_stmt_tree\n");
     //printf("num : %d\n",root->childnum);
     FieldList *var=(FieldList *)malloc(sizeof(FieldList));
     if(root->childnum==1){
@@ -737,7 +747,7 @@ bool charge_args_equal(FieldList *args1,FieldList *args2){
 /*遍历args的子树*/
 FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
     int i=0;
-    printf("travel_args_tree!\n");
+    //printf("travel_args_tree!\n");
     if(root!=NULL){
         FieldList *temp=NULL;
         if(!strcmp(root->data,"ID")){
