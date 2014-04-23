@@ -57,9 +57,12 @@ Type* travel_specifier_tree(struct TreeNode *root){
                 struct TreeNode *id_node=tag_node->childNode[0];
                 //printf("sub_data:++++++++++:%s\n",id_node->sub_data);
                 ((type->u).structure)->name=id_node->sub_data;
-                //printf("insert+++++++ %s\n",id_node->sub_data);
+                printf("insert+++++++ %s\n",id_node->sub_data);
+                if(fetch(id_node->sub_data,varList)!=NULL){
+                    printf("Error type 3 at line %d: Redefined variable \"%s\"\n",root->line,id_node->sub_data);
+                }
                 //printf("type : %s\n",((type->u).structure->type->u).structure->name);
-                if(!insert(((type->u).structure),varList)){
+                if(!insert(((type->u).structure),structList)){
                     printf("Error type 16 at line %d: Duplicated name '%s'\n"
                            ,type_node->line,id_node->sub_data);
                     return NULL;
@@ -80,7 +83,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         else{//类型使用的情况
             struct TreeNode* id_node=tag_node->childNode[0];
             //printf("fetch %s\n",id_node->sub_data);
-            FieldList *p=fetch(id_node->sub_data,varList);
+            FieldList *p=fetch(id_node->sub_data,structList);
             if(p==NULL){
                 printf("Error type 17 at line %d: Undefined struct '%s'\n",
                        type_node->line,id_node->sub_data);
@@ -170,6 +173,7 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
                 struct TreeNode *declist_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
                 //printf("type in def %d\n",type->kind);
+                travel_extdeclist_tree(root,type);
                 field=travel_declist_tree(declist_node,type,field,0);
                 //printf("type in def %s\n",field->name);
                 break;
@@ -267,7 +271,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
                 (p->u).array.elem=type;
             }
             //printf("name : %s\n",var->name);
-            if(fetch(var->name,varList)!=NULL){
+            if(fetch(var->name,structList)!=NULL){
                 printf("Error type 3 at line %d: Redefined variable \"%s\"\n",root->line,var->name);
             }
             else if(!insert(var,varList)){ 

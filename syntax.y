@@ -244,9 +244,6 @@ Stmt			:	Exp	SEMI					{
 													addNodeToParent(&$$,$4);
 													addNodeToParent(&$$,$5);
                                                 }
-                |   error SEMI                  {
-                                                    //CreateNode("ERROR",0,0);
-                                                }
 				|	error RP					{}
 				;
 DefList			:	Def DefList					{
