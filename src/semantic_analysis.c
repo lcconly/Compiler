@@ -57,7 +57,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
                 struct TreeNode *id_node=tag_node->childNode[0];
                 //printf("sub_data:++++++++++:%s\n",id_node->sub_data);
                 ((type->u).structure)->name=id_node->sub_data;
-                printf("insert+++++++ %s\n",id_node->sub_data);
+                //printf("insert+++++++ %s\n",id_node->sub_data);
                 if(fetch(id_node->sub_data,varList)!=NULL){
                     printf("Error type 3 at line %d: Redefined variable \"%s\"\n",root->line,id_node->sub_data);
                 }

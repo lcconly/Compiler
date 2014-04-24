@@ -7,6 +7,7 @@ struct TempStruct2
 {
 int array3[100];
 float array4[10][10];
+int array3;
 };
 struct TempStruct3
 {
@@ -36,6 +37,8 @@ struct Complex2 c2;
 struct Complex3 c3;
 int Complex3;
 int q3;
+int v[1][2];
+v[1][2][3]=0;
 c1 = c2;
 c2 = c3;
 c3 = c1;
