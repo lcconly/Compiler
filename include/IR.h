@@ -8,6 +8,8 @@
  ************************************************************************/
 
 #include"semantic_analysis.h"
+#include"list.h"
+#include<stdarg.h>
 #define DATASIZE 10
 typedef struct Operand_* Operand; 
 struct Operand_ {
@@ -22,7 +24,7 @@ struct Operand_ {
 	} u; 
 };
 struct InterCode {
-	enum { ASSIGN,ADD,SUB,MUL,DIV,GOTO,IF,RETURN,DEC,ARG,CALL,PARAM,READ,WRITE} kind; 
+	enum { ASSIGN_IR,ADD_IR,SUB_IR,MUL_IR,DIV_IR,GOTO_IR,IF_IR,RETURN_IR,DEC_IR,ARG_IR,CALL_IR,PARAM_IR,READ_IR,WRITE_IR} kind; 
 	union {
 		struct {
 			Operand right, left;
@@ -49,9 +51,9 @@ struct InterCode {
 };
 struct InterCodes{
     struct InterCode code;
-    struct InterCodes *prev,*next;
+    ListHead queue;
 };
-struct InterCodes *ir_head=NULL;
+ListHead ir_head;
 int var_num=0;
 int temp_num=0;
 int lable_num=0;
@@ -59,4 +61,26 @@ int lable_num=0;
 void printCodeToFile(char *filename);
 /*根据Operand输出中间代码的符号*/
 char* printOperand(Operand op);
+/*从尾部插入多个internodes*/
+void insertCodes(int n, ...);
+/*赋值operand*/
+Operand initOperand(int kind,int data);
+/*产生assign中间代码*/
+struct InterCodes* gen_assign(int kind,Operand right,Operand left);
+/*产生Binop中间代码*/
+struct InterCodes* gen_binop(int kind,Operand result,Operand op1,Operand op2);
+/*产生if_type中间代码*/
+struct InterCodes* gen_iftype(int kind,char* relop,Operand result,Operand op1,Operand op2,Operand lable);
+/*产生Callfun中间代码*/
+struct InterCodes* gen_callfun(int kind,Operand returnop,char* name);
+/*产生array中间代码*/
+struct InterCodes* gen_array(int kind,Operand op,int size);
+/*产生ID中间代码*/
+struct InterCodes* gen_id(int kind,char *name);
+/*产生var中间代码*/
+struct InterCodes* gen_var(int kind,Operand op);
+/*查找符号表的中间代码*/
+struct InterCodes* gen_var(int kind,Operand op);
+/*从符号表中获取中间代码*/
+Operand lookup(FieldList** list,char *name);
 #endif

@@ -43,52 +43,48 @@ char* printOperand(Operand op){
 }
 /*打印中间代码到文件*/
 void printCodeToFile(char *filename){
-	struct InterCodes *temp;
-	if(ir_head!=NULL)
-		temp=ir_head->next;
-	else
-		printf("error: ir_head is NULL!!!\n");
+	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
 	FILE *fp=fopen(filename,"w");
-	while(temp!=NULL){
+	while(temp!=list_entry(&ir_head.next,struct InterCodes,queue)){
 		switch((temp->code).kind){
-			case ASSIGN:
+			case ASSIGN_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.assign.right));
 				fprintf(fp," := ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.assign.left));
 				break;
-			case ADD:
+			case ADD_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.result));
 				fprintf(fp," := ");
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.op1));
 				fprintf(fp," + ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.binop.op2));
 				break;
-			case SUB:
+			case SUB_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.result));
 				fprintf(fp," := ");
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.op1));
 				fprintf(fp," - ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.binop.op2));
 				break;
-			case MUL:
+			case MUL_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.result));
 				fprintf(fp," := ");
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.op1));
 				fprintf(fp," * ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.binop.op2));
 				break;
-			case DIV:
+			case DIV_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.result));
 				fprintf(fp," := ");
 				fprintf(fp,"%s",printOperand((temp->code).u.binop.op1));
 				fprintf(fp," / ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.binop.op2));
 				break;
-			case GOTO:	
+			case GOTO_IR:	
 				fprintf(fp,"GOTO ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
-			case IF:
+			case IF_IR:
 				fprintf(fp,"IF ");
 				fprintf(fp,"%s",printOperand((temp->code).u.if_type.op1));
 				fprintf(fp," %s ",(temp->code).u.if_type.relop);
@@ -96,33 +92,33 @@ void printCodeToFile(char *filename){
 				fprintf(fp," GOTO ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.if_type.lable));
 				break;
-			case RETURN:
+			case RETURN_IR:
 				fprintf(fp,"RETURN ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
-			case DEC:
+			case DEC_IR:
 				fprintf(fp,"DEC ");
 				fprintf(fp,"%s ",printOperand((temp->code).u.array.op));
 				fprintf(fp,"%d\n",(temp->code).u.array.size);	
 				break;
-			case ARG:
+			case ARG_IR:
 				fprintf(fp,"ARG ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
-			case CALL:
+			case CALL_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.call_fun.returnop));
 				fprintf(fp," := CALL ");
 				fprintf(fp,"%s\n",(temp->code).u.call_fun.name);
 				break;
-			case PARAM:
+			case PARAM_IR:
 				fprintf(fp,"PARAM ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
-			case READ:
+			case READ_IR:
 				fprintf(fp,"READ ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
-			case WRITE:
+			case WRITE_IR:
 				fprintf(fp,"WRITE ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
 				break;
@@ -130,5 +126,6 @@ void printCodeToFile(char *filename){
 				printf("InterCodes kind type!!!\n");
 				break;
 		}
+        temp=list_entry(temp->queue.next,struct InterCodes,queue);
 	}
 }
