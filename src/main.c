@@ -14,10 +14,12 @@ int main(int argc,char** argv){
     //yydebug=1;
     yyparse();
     if(hasError==0){
-        //printf("%s (%d)\n",root->data,root->line);
-        //printTree(root);
+        printf("%s (%d)\n",root->data,root->line);
+        printTree(root);
         travel_grammer_tree(root);
-        list_init(&ir_head);
-    }
+        if(sem_error==0){
+		//	list_init(&ir_head);
+		}
+	}
     return 0;
 }

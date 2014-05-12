@@ -5,7 +5,7 @@
 	> Created Time: Sat 10 May 2014 09:43:31 PM CST
  ************************************************************************/
 
-#include"IR.h"
+#include "../include/IR.h"
 /*根据Operand输出中间代码的符号*/
 char* printOperand(Operand op){
 	char* data;

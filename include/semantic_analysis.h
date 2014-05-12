@@ -1,5 +1,5 @@
-#ifndef __HASH_TABLE_H__
-#define __HASH_TABLE_H__
+#ifndef __SEMANTIC_ANALYSIS_H__
+#define __SEMANTIC_ANALYSIS_H__
 /*************************************************************************
 	> File Name: semantic_analysis.h
 	> Author: liucheng
@@ -14,6 +14,7 @@ FieldList* structList[MAXHARSHSIZE];
 FieldList* funcList[MAXHARSHSIZE];
 Type *funType;
 FieldList *func;
+static int sem_error=0;
 /*遍历语法树*/
 void travel_grammer_tree(struct TreeNode *root);
 /*遍历specifier_node返回类型*/

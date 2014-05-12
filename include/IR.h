@@ -54,9 +54,9 @@ struct InterCodes{
     ListHead queue;
 };
 ListHead ir_head;
-int var_num=0;
-int temp_num=0;
-int lable_num=0;
+static int var_num=0;
+static int temp_num=0;
+static int lable_num=0;
 /*打印中间代码到文件*/
 void printCodeToFile(char *filename);
 /*根据Operand输出中间代码的符号*/

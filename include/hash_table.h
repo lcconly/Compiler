@@ -10,7 +10,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<stdbool.h>
-#include"IR.h"
+//#include"IR.h"
 #define MAXHARSHSIZE 16384
 typedef struct Type_ Type;
 typedef struct FieldList_ FieldList;
@@ -25,7 +25,7 @@ struct Type_{
 struct FieldList_{
     char* name;
     Type *type;
-	struct Operand_ intercode;
+	//struct Operand_ intercode;
 	FieldList *variable;
     FieldList *tail;
 };

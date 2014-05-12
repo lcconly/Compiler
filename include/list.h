@@ -2,6 +2,8 @@
 #define __LIST_H__
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
 struct ListHead {
 	struct ListHead *prev, *next;
 };
@@ -43,7 +45,7 @@ list_init(ListHead *list) {
 	list->prev = list->next = list;
 }
 
-static inline boolean
+static inline bool
 list_empty(ListHead *list) {
 	return list == list->next;
 }

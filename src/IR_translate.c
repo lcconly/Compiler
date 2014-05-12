@@ -5,7 +5,7 @@
 	> Created Time: Sun 11 May 2014 01:49:13 PM CST
  ************************************************************************/
 
-#include"IR.h"
+#include"../include/IR.h"
 /*从尾部插入多个internodes*/
 void insertCodes(int n, ...){
     va_list codelist;
@@ -129,7 +129,7 @@ Operand lookup(FieldList** list,char *name){
 	p=list[index];
 	while(p!=NULL){
 		if(!strcmp(p->name,name)){
-			return p->intercode;
+		//	return p->intercode;
 		}
 		p=p->tail;
 	}
