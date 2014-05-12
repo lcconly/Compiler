@@ -1,14 +1,21 @@
-struct Vector
-{
-float x, y;
-};
-float dotmultiply(struct Vector v1, struct Vector v2)
-{
-return v1.x*v2.y - v1.y*v2.x;
+float func1()
+ {
+ struct {float a, b;} vv;
+ vv.a = 1.0;
+ vv.b = 1.0;
+ return vv.a;
+
 }
-int main()
+int func(int y){
+}
+int func2(struct Vector1 {int y;} v1)
 {
- struct Vector sv1, sv2;
- int a = 5;
- dotmultiply(sv1, a);
+ struct Vector1 v11 = v1;
+ return v1.y;
+}
+ struct Vector2 {int x;} main()
+ {
+ struct Vector2 v2;
+v2.x = 1;
+return v2;
 }

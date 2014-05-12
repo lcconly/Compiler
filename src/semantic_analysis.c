@@ -311,7 +311,10 @@ FieldList* travel_fundec_tree(struct TreeNode *root,FieldList *structfield){
                 var=travel_vardec_tree(vardec_node);
                 //if(var==NULL) printf("!!!!!!!!!\n");
 				//printf("%d %s \n",type->kind,var->name);
-                travel_extdeclist_tree(root,type);
+                //if(type->kind!=2)
+                if(!(!strcmp(root->childNode[0]->childNode[0]->data,"StructSpecifier")&&
+                  root->childNode[0]->childNode[0]->childnum==4))
+                    travel_extdeclist_tree(root,type);
                 //printf("%d %s \n",type->kind,var->name);
                 if(var->type==NULL){
                     var->type=type;
@@ -448,7 +451,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 Type *type=(Type *)malloc(sizeof(Type));
                 type->kind=basic;
                 (type->u).basic=0;
-                return type;
+                return NULL;
             }
             //printf("var : %s type : %d \n",var->name,(var->type->u).basic);
             return var->type;
@@ -496,6 +499,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                     printf("Error type 9 at line %d: The method \"%s(%s)\" is"\
 							" not applicable for the arguments \"(%s)\"\n",
 							root->line,var->name,str1,str2);
+                    return NULL;
                 }
                 //printf("kind %d \n",(var->type->u).basic);
                 return var->type;
@@ -504,7 +508,7 @@ Type* travel_exp_tree(struct TreeNode *root){
 				sem_error=1;
                 printf("Error type 11 at line %d: \"%s\" must be a function\n"
                        ,id_node->line,id_node->sub_data);
-                return (fetch(id_node->sub_data,varList))->type;
+                return NULL;
             }
             else{//函数未定义
 				sem_error=1;
@@ -513,7 +517,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 Type *type=(Type *)malloc(sizeof(Type));
                 type->kind=basic;
                 (type->u).basic=0;
-                return type;
+                return NULL;
             }
         }
         else if(root->childnum==1){//取负或者取反的情况
@@ -522,6 +526,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 if(temp_not!=NULL&&(temp_not->kind==2||temp_not->kind==1||(temp_not->kind==0&&(temp_not->u).basic==1))){
 					sem_error=1;
 					printf("Error type 7 at line %d: Operands type mismached\n",root->line);
+                    return NULL;
 				}
             return temp_not;
         }
@@ -542,13 +547,14 @@ Type* travel_exp_tree(struct TreeNode *root){
             if(type==NULL||type->kind!=1){
 				sem_error=1;
                 printf("Error type 10 at line %d: \"%s\" must be an array\n",root->line,name);
-                return type;
+                return NULL;
             }
             num=travel_exp_tree(root->childNode[2]);
             if((num->u).basic!=0){
 				sem_error=1;
                 printf("Error type 12 at line %d: Operands type mistaken\n",root->line);
-			}
+			    return NULL;
+            }
             return (type->u).array.elem;
         }
         else{//exp op exp的情况或者（exp）
@@ -560,7 +566,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 else if(type->kind!=2){
 					sem_error=1;
                     printf("Error type 13 at line %d:Illegal use of '.'\n" ,root->line);
-                    return type;
+                    return NULL;
                 }
                 FieldList *temp=(type->u).structure;
                 temp=(temp->type->u).structure;
@@ -581,11 +587,12 @@ Type* travel_exp_tree(struct TreeNode *root){
                 //printf("name: %s \n",root->childNode[0]->childNode[0]->sub_data);
                 Type *type2=travel_exp_tree(root->childNode[2]);
                 if(!strcmp(root->childNode[1]->data,"ASSIGNOP")){
-                    if(root->childNode[0]!=NULL)
+                    if(root->childNode[0]!=NULL&&type1!=NULL)
                         if(!charge_lefthand_variable(root->childNode[0])||type1->kind==array){
 							sem_error=1;
                             printf("Error type 6 at line %d: The left-hand side"\
                                " of an assignment must be a variable\n",root->line);
+                            return NULL;
 					}
 				}
                 //printf("name :%s %d name : %s %d \n",root->childNode[0]->data,
@@ -601,7 +608,8 @@ Type* travel_exp_tree(struct TreeNode *root){
                            ||(type2!=NULL)&&(!strcmp(root->childNode[1]->data,"AND")||!strcmp(root->childNode[1]->data,"OR")&&(type1->u).basic!=0)){
 						sem_error=1;
                         printf("Error type 7 at line %d: Operands type mismached\n",root->line);
-					}
+					    return NULL;
+                    }
                     return type1;
                 }
                 if(charge_type_equal(type1,type2)&&type2!=NULL&&
@@ -609,7 +617,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                     !strcmp(root->childNode[1]->data,"OR"))&&(type1->u).basic!=0){
 						sem_error=1;
                         printf("Error type 7 at line %d: Operands type mismached\n",root->line);
-                        return type1;
+                        return NULL;
                     }
                 return type1;
             }
@@ -812,7 +820,7 @@ FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
     //printf("travel_args_tree!\n");
     if(root!=NULL){
         FieldList *temp=NULL;
-        if(!strcmp(root->data,"ID")){
+        /*if(!strcmp(root->data,"ID")){
             temp=fetch(root->sub_data,varList);
             if(temp==NULL){
 				sem_error=1;
@@ -834,7 +842,15 @@ FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
             temp->type=(Type *)malloc(sizeof(Type));
             temp->type->kind=basic;
             (temp->type->u).basic=1;
-        }
+        }*/
+        Type *temp_type;
+        if(!strcmp(root->data,"Args"))
+            if(!strcmp(root->childNode[0]->data,"Exp")){
+                if((temp_type=travel_exp_tree(root->childNode[0]))!=NULL) {
+                    temp=(FieldList *)malloc(sizeof(FieldList));
+                    temp->type=temp_type;
+                }
+            }
         if(temp!=NULL){
             if(args==NULL){
                 temp->tail=NULL;
