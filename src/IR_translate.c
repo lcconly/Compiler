@@ -135,3 +135,47 @@ Operand lookup(FieldList** list,char *name){
 	}
 	return NULL;
 }
+
+
+/*产生立即数的operand*/
+Operand get_value(int data){
+    return initOperand(CONSTANT,data);   
+}
+
+/*产生零时变量的operand*/
+Operand new_temp(int kind){
+    temp_num++;
+    return initOperand(kind,temp_num-1);
+}
+
+/*产生变量的operand*/
+Operand new_variable(int kind){
+    var_num++;
+    return initOperand(kind,var_num-1);
+}
+
+/*产生lable的operand*/
+Operand new_lable(){
+    lable_num++;
+    return initOperand(LABLE,lable_num-1);
+}
+
+/*翻译exp*/
+struct InterCodes* translate_Exp(){
+    
+}
+
+/*翻译逻辑表达*/
+struct InterCodes* translate_Cond(){
+
+}
+
+/*翻译stmt*/
+struct InterCodes* translate_Stmt(){
+    
+}
+
+/*翻译args*/
+struct InterCodes* translate_args(){
+    
+}

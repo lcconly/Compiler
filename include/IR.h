@@ -83,4 +83,20 @@ struct InterCodes* gen_var(int kind,Operand op);
 struct InterCodes* gen_var(int kind,Operand op);
 /*从符号表中获取中间代码*/
 Operand lookup(FieldList** list,char *name);
+/*产生立即数的operand*/
+Operand get_value(int data);
+/*产生零时变量的operand*/
+Operand new_temp(int kind);
+/*产生变量的operand*/
+Operand new_variable(int kind);
+/*产生lable的operand*/
+Operand new_lable();
+/*翻译exp*/
+struct InterCodes* translate_Exp();
+/*翻译逻辑表达*/
+struct InterCodes* translate_Cond();
+/*翻译stmt*/
+struct InterCodes* translate_Stmt();
+/*翻译args*/
+struct InterCodes* translate_args();
 #endif
