@@ -73,7 +73,7 @@ struct InterCodes* gen_binop(int kind,Operand result,Operand op1,Operand op2){
 	return temp;
 }
 /*产生if_type中间代码*/
-struct InterCodes* gen_iftype(int kind,char* relop,Operand result,Operand op1,Operand op2,Operand lable){
+struct InterCodes* gen_iftype(int kind,char* relop,Operand op1,Operand op2,Operand lable){
 	struct InterCodes *temp=(struct InterCodes*)malloc(sizeof(struct InterCodes));
 	(temp->code).kind=kind;
 	strcpy((temp->code).u.if_type.relop,relop);
@@ -414,6 +414,46 @@ FieldList* translate_args(struct TreeNode *root,FieldList *args){
 
 /*翻译逻辑表达*/
 void translate_Cond(struct TreeNode *root,Operand lable1,Operand lable2){
+    switch(root->childnum){
+        case 1:{
+            if(!strcmp(root->childNode[0]->data,"NOT")){
+                translate_Cond(root->childNode[1],lable1,lable2);
+                return ;
+            }
+            break;
+        }
+        case 2:{
+            if(!strcmp(root->childNode[1]->data,"RELOP")){
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(2,gen_iftype(IF_IR,root->childNode[1]->sub_data,t1,t2,lable1),gen_var(LABLE,lable2));
+                return ;
+            }
+            if(!strcmp(root->childNode[1]->data,"AND")){
+                Operand lable=new_lable();
+                translate_Cond(root->childNode[0],lable,lable2);
+                insertCodes(1,gen_var(LABLE,lable));
+                translate_Cond(root->childNode[2],lable1,lable2);
+                return ;
+            }
+            if(!strcmp(root->childNode[1]->data,"OR")){
+                Operand lable=new_lable();
+                translate_Cond(root->childNode[0],lable1,lable);
+                insertCodes(1,gen_var(LABLE,lable));
+                translate_Cond(root->childNode[2],lable1,lable2);
+                return ;
+            }
+            break;
+        }
+        default:
+            printf("error cond childnum!!\n");
+            return ;
+    }
+    Operand t1=new_temp(TEMP);
+    translate_Exp(root,t1);
+    insertCodes(2,gen_iftype(IF_IR,"!=",t1,initOperand(CONSTANT,0),lable1),gen_var(LABLE,lable2));
 }
 
 /*翻译stmt*/
@@ -475,6 +515,7 @@ void translate_Stmt(struct TreeNode *root){
 
 /*翻译fundec*/
 void translate_fundec(struct TreeNode *root){
+
 }
 
 /*从根部翻译*/

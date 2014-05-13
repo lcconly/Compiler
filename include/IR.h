@@ -70,7 +70,7 @@ struct InterCodes* gen_assign(int kind,Operand right,Operand left);
 /*产生Binop中间代码*/
 struct InterCodes* gen_binop(int kind,Operand result,Operand op1,Operand op2);
 /*产生if_type中间代码*/
-struct InterCodes* gen_iftype(int kind,char* relop,Operand result,Operand op1,Operand op2,Operand lable);
+struct InterCodes* gen_iftype(int kind,char* relop,Operand op1,Operand op2,Operand lable);
 /*产生Callfun中间代码*/
 struct InterCodes* gen_callfun(int kind,Operand returnop,char* name);
 /*产生array中间代码*/
