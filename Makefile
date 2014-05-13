@@ -18,4 +18,4 @@ coredump:
 	gdb ./parser ./core
 
 clean:
-	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser core
+	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser core *.*~ */*.*~

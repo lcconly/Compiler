@@ -16,7 +16,8 @@ int main(int argc,char** argv){
     if(hasError==0){
         printf("%s (%d)\n",root->data,root->line);
         printTree(root);
-        travel_grammer_tree(root);
+        add_func_read_and_write();
+		travel_grammer_tree(root);
         if(sem_error==0){
 		//	list_init(&ir_head);
 		}

@@ -10,7 +10,6 @@
 #include<string.h>
 #include<stdio.h>
 #include<stdbool.h>
-//#include"IR.h"
 #define MAXHARSHSIZE 16384
 typedef struct Type_ Type;
 typedef struct FieldList_ FieldList;
@@ -22,10 +21,22 @@ struct Type_{
         FieldList *structure;
     }u;
 };
+typedef struct Operand_* Operand; 
+struct Operand_ {
+	enum { VARIABLE,CONSTANT,TEMP_ADDRESS,VAR_ADDRESS,TEMP,LABLE,VAR_MEMORY,TEMP_MEMORY } kind; 
+	union {
+		int var_no;
+		int value; 
+		int lable_no;
+		int temp_no;
+		//int relop;//0:> 1:< 2:>= 3:<= 4:== 5:!=
+		//...
+	} u; 
+};
 struct FieldList_{
     char* name;
     Type *type;
-	//struct Operand_ intercode;
+	Operand intercode;
 	FieldList *variable;
     FieldList *tail;
 };

@@ -11,7 +11,7 @@
 #include"list.h"
 #include<stdarg.h>
 #define DATASIZE 10
-typedef struct Operand_* Operand; 
+/*typedef struct Operand_* Operand; 
 struct Operand_ {
 	enum { VARIABLE,CONSTANT,TEMP_ADDRESS,VAR_ADDRESS,TEMP,LABLE,VAR_MEMORY,TEMP_MEMORY } kind; 
 	union {
@@ -22,7 +22,7 @@ struct Operand_ {
 		//int relop;//0:> 1:< 2:>= 3:<= 4:== 5:!=
 		//...
 	} u; 
-};
+};*/
 struct InterCode {
 	enum { ASSIGN_IR,ADD_IR,SUB_IR,MUL_IR,DIV_IR,GOTO_IR,IF_IR,RETURN_IR,DEC_IR,ARG_IR,CALL_IR,PARAM_IR,READ_IR,WRITE_IR} kind; 
 	union {
@@ -91,12 +91,16 @@ Operand new_temp(int kind);
 Operand new_variable(int kind);
 /*产生lable的operand*/
 Operand new_lable();
+/*加入read和write函数*/
+void add_func_read_and_write();
 /*翻译exp*/
-struct InterCodes* translate_Exp();
+Operand translate_Exp(struct TreeNode* root);
 /*翻译逻辑表达*/
-struct InterCodes* translate_Cond();
+void translate_Cond(struct TreeNode* root,Operand lable1,Operand lable2);
 /*翻译stmt*/
-struct InterCodes* translate_Stmt();
+void translate_Stmt(struct TreeNode* root,Operand op);
 /*翻译args*/
-struct InterCodes* translate_args();
+void translate_args(struct TreeNode* root,Operand op);
+/*op插入符号表*/
+void inser_field_code(FieldList** list,char *name,Operand op);
 #endif

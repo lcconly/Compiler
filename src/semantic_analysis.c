@@ -6,6 +6,11 @@
  ************************************************************************/
 
 #include"../include/semantic_analysis.h"
+//FieldList* varList[MAXHARSHSIZE];
+//FieldList* structList[MAXHARSHSIZE];
+//FieldList* funcList[MAXHARSHSIZE];
+//Type *funType;
+//FieldList *func;
 /*遍历语法树*/
 void travel_grammer_tree(struct TreeNode *root){
     int i=0;
@@ -281,6 +286,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
                     p=(p->u).array.elem;
                 (p->u).array.elem=type;
             }
+			var->intercode=NULL;
             //printf("name : %s\n",var->name);
             if(fetch(var->name,structList)!=NULL){
 				sem_error=1;
