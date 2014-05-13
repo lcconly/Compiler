@@ -177,8 +177,38 @@ void add_func_read_and_write(){
 	(write->type->u).basic=0;
 	insert(write,funcList);
 }
+
+/*获取结构体内部偏移*/
+/*int getOffset(FieldList *field,char *name){
+    assert((field->type->u).structure!=NULL);
+    FieldList *structure=(field->type->u).structure;
+    int offset=0;
+    int array_size;
+    while(structure->tail!=NULL){
+        if(structure->type->kind==basic)
+            offset+=4;
+        else if(structure->type->kind==array){
+            Type *type=structure->type;
+            while(type->u.elem!=)
+        }
+    }
+}*/
+/*获取数组内部偏移*/
+int getOffset(Type *type,int tag){
+    int i=0,result=0;
+    int arrSize[DATASIZE];
+    while(type!=NULL){
+        arrSize[i]=(type->u).array.size;
+        i++;
+        type=(type->u).array.elem;
+    }
+    for(;tag>0;tag--)
+        result*=arrSize[i-tag];
+    return result;
+}
+
 /*翻译exp*/
-Operand translate_Exp(struct TreeNode *root){
+void translate_Exp(struct TreeNode *root,Operand op){
 	assert(root!=NULL);
 	switch(root->childnum){
 		case 0:{
@@ -186,7 +216,7 @@ Operand translate_Exp(struct TreeNode *root){
 			Operand temp;
 			if(!strcmp(child->data,"INT")){
 			    temp=initOperand(CONSTANT,atoi(child->sub_data));
-                return  temp;
+                insertCodes(1,gen_assign(ASSIGN_IR,op,temp));
             }
             else if(!strcmp(child->data,"ID")){
                 temp=lookup(varList,child->sub_data);
@@ -195,103 +225,101 @@ Operand translate_Exp(struct TreeNode *root){
                         temp=new_variable(VARIABLE);
                     else temp=new_variable(VAR_ADDRESS);
                     inser_field_code(varList,child->sub_data,temp);
-                    return temp;
+                    break;
                 }
-                else
-                    return temp;
+                insertCodes(1,gen_assign(ASSIGN_IR,op,temp));
             }
             else{
                 printf("error Exp childnum 0!!!\n");
                 break;
             }
+            break;
         }
         case 1:{
             struct TreeNode *child=root->childNode[0];
             if(!strcmp(child->data,"MINUS")){
+                Operand t1=new_temp(TEMP);
                 Operand op1=initOperand(CONSTANT,0);
-                Operand op2=translate_Exp(root->childNode[1]);
-                Operand result=new_temp(TEMP);
-                insertCodes(1,gen_binop(SUB_IR,result,op1,op2));
-                return result;
+                translate_Exp(root->childNode[1],t1);
+                insertCodes(1,gen_binop(SUB_IR,op,op1,t1));
             }
             else if(!strcmp(child->data,"NOT")){
                 Operand lable1=new_lable();
                 Operand lable2=new_lable();
                 Operand code0=initOperand(CONSTANT,0);
+                insertCodes(1,gen_assign(ASSIGN_IR,op,code0));
                 Operand code1=initOperand(CONSTANT,1);
-                Operand var=new_temp(TEMP);
-                insertCodes(1,gen_assign(ASSIGN_IR,code0,var));
                 translate_Cond(root,lable1,lable2);
-                insertCodes(3,gen_var(LABLE,lable1),gen_assign(ASSIGN_IR,code1,var),gen_var(LABLE,lable2));
-                return var;
+                insertCodes(3,gen_var(LABLE,lable1),gen_assign(ASSIGN_IR,op,code1),gen_var(LABLE,lable2));
             }
             else{
                 printf("error Exp childnum 1!!!\n");
                 break;
             }
+            break;
         }
         case 2:{
             struct TreeNode *child=root->childNode[1];
             if(!strcmp(child->data,"ASSIGNOP")){
-                Operand left=translate_Exp(root->childNode[0]);
-                Operand right=translate_Exp(root->childNode[1]);
-                insertCodes(1,gen_assign(ASSIGN_IR,right,left));
-                return NULL;
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(2,gen_assign(ASSIGN_IR,t2,t1),gen_assign(ASSIGN_IR,t1,op));
             }
             else if(!strcmp(child->data,"PLUS")){
-                Operand op1=translate_Exp(root->childNode[0]);
-                Operand op2=translate_Exp(root->childNode[2]);
-                Operand result=new_temp(TEMP);//----------判断零时地址或者数据
-                insertCodes(1,gen_binop(ADD_IR,result,op1,op2));
-                return result;
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(1,gen_binop(ADD_IR,op,t1,t2));
             }
             else if(!strcmp(child->data,"MINUS")){
-                Operand op1=translate_Exp(root->childNode[0]);
-                Operand op2=translate_Exp(root->childNode[2]);
-                Operand result=new_temp(TEMP);//----------判断零时地址或者数据
-                insertCodes(1,gen_binop(SUB_IR,result,op1,op2));
-                return result;
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(1,gen_binop(SUB_IR,op,t1,t2));
             }
             else if(!strcmp(child->data,"STAR")){
-                Operand op1=translate_Exp(root->childNode[0]);
-                Operand op2=translate_Exp(root->childNode[2]);
-                Operand result=new_temp(TEMP);//----------判断零时地址或者数据
-                insertCodes(1,gen_binop(MUL_IR,result,op1,op2));
-                return result;
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(1,gen_binop(MUL_IR,op,t1,t2));
             }
             else if(!strcmp(child->data,"DIV")){
-                Operand op1=translate_Exp(root->childNode[0]);
-                Operand op2=translate_Exp(root->childNode[2]);
-                Operand result=new_temp(TEMP);//----------判断零时地址或者数据
-                insertCodes(1,gen_binop(DIV_IR,result,op1,op2));
-                return result;
+                Operand t1=new_temp(TEMP);
+                Operand t2=new_temp(TEMP);
+                translate_Exp(root->childNode[0],t1);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(1,gen_binop(DIV_IR,op,t1,t2));
             }
             else if(!strcmp(child->data,"Exp")){
-                return translate_Exp(root->childNode[1]);
+                translate_Exp(root->childNode[1],op);
             }
             else if(!strcmp(child->data,"LP")){
                 child=root->childNode[0];
-                Operand result=new_temp(TEMP);
                 if(!strcmp(child->sub_data,"read")){
-                    insertCodes(1,gen_var(READ_IR,result));
-                    return result;
+                    insertCodes(1,gen_var(READ_IR,op));
                 }
-                insertCodes(1,gen_callfun(CALL_IR,result,child->sub_data));
-                return result;
+                insertCodes(1,gen_callfun(CALL_IR,op,child->sub_data));
             }
             else if(!strcmp(child->data,"DOT")){
-                
+            //    Operand op=translate_Exp(root->childNode[0]);
+            //    FieldList *field=fetch(root->childNode[0]->childNode[0]->sub_data,varList);
+            //    FieldList *structType=fetch((field->type->u).structure->name,structList);
+            //    int offset=getOffset(structType,root->childNode[2]->sub_data);
+                printf("Can not translate the code: Contain structure and function parameters of structure type!\n");
             }
             else if(!strcmp(child->data,"AND")||!strcmp(child->data,"OR")||!strcmp(child->data,"RELOP")){
                 Operand lable1=new_lable();
                 Operand lable2=new_lable();
                 Operand code0=initOperand(CONSTANT,0);
+                insertCodes(1,gen_assign(ASSIGN_IR,op,code0));
                 Operand code1=initOperand(CONSTANT,1);
-                Operand var=new_temp(TEMP);
-                insertCodes(1,gen_assign(ASSIGN_IR,code0,var));
                 translate_Cond(root,lable1,lable2);
-                insertCodes(3,gen_var(LABLE,lable1),gen_assign(ASSIGN_IR,code1,var),gen_var(LABLE,lable2));
-                return var;
+                insertCodes(3,gen_var(LABLE,lable1),gen_assign(ASSIGN_IR,op,code1),gen_var(LABLE,lable2));
             }
             else {
                 printf("error Exp childnum 2!!!\n");
@@ -299,16 +327,170 @@ Operand translate_Exp(struct TreeNode *root){
             }
         }
         case 3:{
-            
+            struct TreeNode *child=root->childNode[0];
+            if(!strcmp(child->data,"Exp")){
+                char *name;
+                int tag=0;//记录层树
+                while(child!=NULL){
+                    //tag++;
+                    if(child->data,"ID"){
+                        strcpy(name,child->sub_data);
+                        break;
+                    }
+                    tag++;
+                    child=child->childNode[0];
+                }
+                Operand op1=new_temp(TEMP);
+                translate_Exp(root->childNode[0],op1);
+                Operand op2=new_temp(TEMP);
+                Operand op3=new_temp(TEMP);
+                translate_Exp(root->childNode[2],op2);
+                Operand op4=initOperand(CONSTANT,4*getOffset(fetch(name,varList)->type,tag));
+                insertCodes(2,gen_binop(MUL_IR,op3,op2,op4),gen_binop(ADD_IR,op,op1,op3));
+            }
+            else if(!strcmp(root->data,"ID")){
+                FieldList *field=(FieldList*)malloc(sizeof(FieldList));
+                field=translate_args(root->childNode[2],field);
+                if(!strcmp(child->sub_data,"write"))
+                    insertCodes(1,gen_var(WRITE_IR,field->intercode));
+                else{
+                    FieldList *p,*q;
+                    p=field;
+                    q=p;
+                    while(p!=NULL){
+                        insertCodes(1,gen_var(ARG_IR,p->intercode));
+                        p=p->tail;
+                        free(q);
+                        q=p;
+                    }
+                    insertCodes(1,gen_callfun(CALL_IR,op,child->sub_data));
+                }
+            }
+            else{
+                printf("error Exp childnum 3!!!\n");
+                break; 
+            }
         }
-	}
+        default:
+            printf("Error childnum!!!\n");
+            break;
+    }
 }
+/*遍历args的子树*/
+FieldList* translate_args(struct TreeNode *root,FieldList *args){
+    int i=0;
+    Operand op=new_temp(TEMP);
+    if(root!=NULL){
+        FieldList *temp=NULL;
+        Type *temp_type;
+        if(!strcmp(root->data,"Args"))
+            if(!strcmp(root->childNode[0]->data,"Exp")){
+                if((temp_type=travel_exp_tree(root->childNode[0]))!=NULL) {
+                    temp=(FieldList *)malloc(sizeof(FieldList));
+                    translate_Exp(root->childNode[0],op);
+                    temp->type=temp_type;
+                    temp->intercode=op;
+                }
+            }
+        if(temp!=NULL){
+            if(args==NULL){
+                temp->tail=NULL;
+                args=temp;
+            }
+            else{
+                FieldList *p=args;
+                while(p->tail!=NULL)
+                    p=p->tail;
+                p->tail=temp;
+                //printf("----------%d\n",temp->type->kind);
+                temp->tail=NULL;
+            }
+        }
+        for(i=0;i<=root->childnum;i++)
+            args=translate_args(root->childNode[i],args);
+    }
+    return args;
+}
+
 /*翻译逻辑表达*/
 void translate_Cond(struct TreeNode *root,Operand lable1,Operand lable2){
 }
+
 /*翻译stmt*/
-void translate_Stmt(struct TreeNode *root,Operand op){
+void translate_Stmt(struct TreeNode *root){
+    switch(root->childnum){
+        case 0:{
+            translate(root->childNode[0]);
+            break;
+        }
+        case 1:{
+            translate_Exp(root->childNode[0],NULL);
+            break;
+        }
+        case 2:{
+            Operand t1=new_temp(TEMP);
+            translate_Exp(root->childNode[1],t1);
+            insertCodes(1,gen_var(RETURN_IR,t1));
+            break;
+        }
+        case 4:{
+            if(!strcmp(root->childNode[0]->data,"IF")){
+                Operand lable1=new_lable();
+                Operand lable2=new_lable();
+                translate_Cond(root->childNode[2],lable1,lable2);
+                insertCodes(1,gen_var(LABLE,lable1));
+                translate_Stmt(root->childNode[4]);
+                insertCodes(1,gen_var(LABLE,lable2));
+                break;
+            }
+            else if(!strcmp(root->childNode[0]->data,"WHILE")){
+                Operand lable1=new_lable();
+                Operand lable2=new_lable();
+                Operand lable3=new_lable();
+                insertCodes(1,gen_var(LABLE,lable1));
+                translate_Cond(root->childNode[2],lable2,lable3);
+                insertCodes(1,gen_var(LABLE,lable2));
+                translate_Stmt(root->childNode[4]);
+                insertCodes(1,gen_var(GOTO_IR,lable1));
+                insertCodes(1,gen_var(LABLE,lable3)); 
+            }
+        }
+        case 6:{
+                Operand lable1=new_lable();
+                Operand lable2=new_lable();
+                Operand lable3=new_lable();
+                translate_Cond(root->childNode[2],lable1,lable2);
+                insertCodes(1,gen_var(LABLE,lable1));
+                translate_Stmt(root->childNode[4]);
+                insertCodes(1,gen_var(GOTO_IR,lable3));
+                insertCodes(1,gen_var(LABLE,lable2));
+                translate_Stmt(root->childNode[6]);
+                insertCodes(1,gen_var(LABLE,lable3)); 
+        }
+        default:
+            printf("error Stmt childnum!!!\n");
+            break;
+    }
 }
-/*翻译args*/
-void translate_args(struct TreeNode *root,Operand op){
+
+/*翻译fundec*/
+void translate_fundec(struct TreeNode *root){
+}
+
+/*从根部翻译*/
+void translate(struct TreeNode* root){
+    int i=0;
+    struct TreeNode *temp=NULL;
+    for(i=0; i<=root->childnum; i++){
+        temp=root->childNode[i];
+        if(!strcmp(temp->data,"FunDec")){
+            translate_fundec(temp);
+            continue;
+        }
+        else if(!strcmp(temp->data,"Stmt")){
+            translate_Stmt(temp);
+            continue;
+        }
+        translate(temp);
+    }
 }

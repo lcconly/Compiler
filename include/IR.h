@@ -93,14 +93,22 @@ Operand new_variable(int kind);
 Operand new_lable();
 /*加入read和write函数*/
 void add_func_read_and_write();
+/*获取结构体内部偏移*/
+//int getOffset(FieldList *field,char *name);
+/*获取数组内部偏移*/
+int getOffset(Type *type,int tag);
 /*翻译exp*/
-Operand translate_Exp(struct TreeNode* root);
+void translate_Exp(struct TreeNode* root,Operand op);
 /*翻译逻辑表达*/
 void translate_Cond(struct TreeNode* root,Operand lable1,Operand lable2);
 /*翻译stmt*/
-void translate_Stmt(struct TreeNode* root,Operand op);
-/*翻译args*/
-void translate_args(struct TreeNode* root,Operand op);
+void translate_Stmt(struct TreeNode* root);
 /*op插入符号表*/
 void inser_field_code(FieldList** list,char *name,Operand op);
+/*遍历args的子树*/
+FieldList* translate_args(struct TreeNode *root,FieldList *args);
+/*从根部翻译*/
+void translate(struct TreeNode* root);
+/*翻译fundec*/
+void translate_fundec(struct TreeNode *root);
 #endif
