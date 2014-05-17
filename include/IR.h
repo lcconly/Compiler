@@ -119,4 +119,6 @@ void translate_declist(struct TreeNode *root);
 void printCodeToTerminal(struct InterCodes* temp);
 /*youhua*/
 void optimize();
+/*list reverse*/
+FieldList *listreverse(FieldList *pHead)  ;
 #endif

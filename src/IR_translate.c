@@ -220,6 +220,21 @@ int getArraySize(Type *type){
     }
     return result;
 }
+/*list reverse*/
+FieldList *listreverse(FieldList *pHead)  
+{  
+    FieldList *pList=pHead;  
+    FieldList *paPre=NULL;  
+    FieldList *paNext=NULL;  
+    do  
+    {  
+            paNext=pList->tail;  
+            pList->tail=paPre;  
+            paPre=pList;  
+            pList=paNext;  
+        }while(pList!=NULL);  
+    return paPre;  
+} 
 /*翻译exp*/
 void translate_Exp(struct TreeNode *root,Operand op){
 	//printf("translate_Exp!!\n");
@@ -291,7 +306,10 @@ void translate_Exp(struct TreeNode *root,Operand op){
                     t1=new_temp(TEMP_MEMORY);
                     translate_Exp(root->childNode[0],t1);
                 }
-                Operand t2=new_temp(TEMP);
+                Operand t2;
+                if(root->childNode[2]->childnum==3&&!strcmp(root->childNode[2]->childNode[1]->data,"LB"))
+                    t2=new_temp(TEMP_MEMORY);
+                else t2=new_temp(TEMP);
                 translate_Exp(root->childNode[2],t2);
                 insertCodes(2,gen_assign(ASSIGN_IR,t1,t2),gen_assign(ASSIGN_IR,op,t1));
             }
@@ -413,7 +431,7 @@ void translate_Exp(struct TreeNode *root,Operand op){
                     insertCodes(1,gen_var(WRITE_IR,field->intercode));
                 else{
                     FieldList *p,*q;
-                    p=field;
+                    p=listreverse(field);
                     q=p;
                     while(p!=NULL){
                         insertCodes(1,gen_var(ARG_IR,p->intercode));
@@ -450,7 +468,7 @@ FieldList* translate_args(struct TreeNode *root,FieldList *args){
                 temp=(FieldList *)malloc(sizeof(FieldList));
                 //    translate_Exp(root->childNode[0],op);
                 //    temp->type=temp_type;
-                if(root->childNode[0]->childnum==0){
+                if(root->childNode[0]->childnum==0&&!strcmp(root->childNode[0]->childNode[0]->data,"ID")){
                     op=lookup(varList,root->childNode[0]->childNode[0]->sub_data);
                     if(op==NULL){
                         if(fetch(root->childNode[0]->childNode[0]->sub_data,varList)->type->kind==0) 
@@ -458,6 +476,21 @@ FieldList* translate_args(struct TreeNode *root,FieldList *args){
                         else op=new_variable(VAR_ADDRESS);
                         inser_field_code(varList,root->childNode[0]->childNode[0]->sub_data,op);
                     }
+                }
+                else if(root->childNode[0]->childnum==0&&!strcmp(root->childNode[0]->childNode[0]->data,"INT")){
+                    op=initOperand(CONSTANT,atoi(root->childNode[0]->childNode[0]->sub_data));
+                }
+                else if(root->childNode[0]->childnum==1&&!strcmp(root->childNode[0]->childNode[0]->data,"MINUS")){
+                    op=initOperand(CONSTANT,0-atoi(root->childNode[0]->childNode[1]->childNode[0]->sub_data));
+                }
+                else if(root->childNode[0]->childnum==2
+                   &&(!strcmp(root->childNode[0]->childNode[1]->data,"Exp")||
+                     !strcmp(root->childNode[0]->childNode[1]->data,"PLUS")||
+                     !strcmp(root->childNode[0]->childNode[1]->data,"MINUS")||
+                     !strcmp(root->childNode[0]->childNode[1]->data,"STAR")||
+                     !strcmp(root->childNode[0]->childNode[1]->data,"DIV"))){
+                    op=new_temp(TEMP);
+                    translate_Exp(root->childNode[0],op);
                 }
                 else{
                     op=new_temp(TEMP_MEMORY);
@@ -500,8 +533,15 @@ void translate_Cond(struct TreeNode *root,Operand label1,Operand label2){
         }
         case 2:{
             if(!strcmp(root->childNode[1]->data,"RELOP")){
-                Operand t1=new_temp(TEMP);
-                Operand t2=new_temp(TEMP);
+                Operand t1,t2;
+                if(root->childNode[0]->childnum==3&&!strcmp(root->childNode[0]->childNode[1]->data,"LB"))
+                    t1=new_temp(TEMP_MEMORY);
+                else t1=new_temp(TEMP);
+                if(root->childNode[2]->childnum==3&&!strcmp(root->childNode[2]->childNode[1]->data,"LB"))
+                    t2=new_temp(TEMP_MEMORY);
+                else t2=new_temp(TEMP);
+                //Operand t1=new_temp(TEMP);
+                //Operand t2=new_temp(TEMP);
                 translate_Exp(root->childNode[0],t1);
                 translate_Exp(root->childNode[2],t2);
                 insertCodes(2,gen_iftype(IF_IR,root->childNode[1]->sub_data,t1,t2,label1),gen_var(GOTO_IR,label2));
@@ -622,9 +662,8 @@ void translate_fundec(struct TreeNode *root){
                     else temp=new_variable(VAR_ADDRESS);
                     inser_field_code(varList,field->name,temp);
                 }	
-				Operand temp1=(Operand)malloc(sizeof(struct Operand_));
 				temp->kind=VARIABLE;
-                insertCodes(1,gen_array(PARAM_IR,temp1,4*getArraySize(field->type)));
+                insertCodes(1,gen_array(PARAM_IR,temp,4*getArraySize(field->type)));
             }
             field=field->variable;
         }
@@ -638,7 +677,12 @@ void translate_declist(struct TreeNode *root){
         if(!strcmp(root->data,"Dec")){
             if(root->childnum==2){
                 Operand t1=new_variable(VARIABLE);
-                translate_Exp(root->childNode[2],t1);
+                Operand t2;
+                if(root->childNode[2]->childnum==3&&!strcmp(root->childNode[2]->childNode[1]->data,"LB"))
+                    t2=new_temp(TEMP_MEMORY);
+                else t2=new_temp(TEMP);
+                translate_Exp(root->childNode[2],t2);
+                insertCodes(1,gen_assign(ASSIGN_IR,t1,t2));
                 struct TreeNode *vardec=root->childNode[0];
                 while(vardec!=NULL){
                     if(!strcmp(vardec->data,"ID"))
