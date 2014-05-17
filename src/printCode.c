@@ -10,6 +10,7 @@
 char* printOperand(Operand op){
 	char* data;
 	data=(char*)malloc(DATASIZE);
+	assert(op!=NULL);
 	switch(op->kind){
 		case VARIABLE:
 			sprintf(data,"v%d",(op->u).var_no);
@@ -26,8 +27,8 @@ char* printOperand(Operand op){
 		case TEMP:
 			sprintf(data,"t%d",(op->u).temp_no);
 			break;
-		case LABLE:
-			sprintf(data,"lable%d",(op->u).lable_no);
+		case LABEL:
+			sprintf(data,"label%d",(op->u).lable_no);
 			break;
 		case VAR_MEMORY:
 			sprintf(data,"*v%d",(op->u).var_no);
@@ -45,7 +46,7 @@ char* printOperand(Operand op){
 void printCodeToFile(char *filename){
 	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
 	FILE *fp=fopen(filename,"w");
-	while(temp!=list_entry(&ir_head.next,struct InterCodes,queue)){
+	while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
 		switch((temp->code).kind){
 			case ASSIGN_IR:
 				fprintf(fp,"%s",printOperand((temp->code).u.assign.right));
@@ -80,6 +81,12 @@ void printCodeToFile(char *filename){
 				fprintf(fp," / ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.binop.op2));
 				break;
+			case LABEL_IR:
+				fprintf(fp,"LABEL %s :\n",printOperand((temp->code).u.op));
+				break;
+			case FUNC_IR:
+				fprintf(fp,"FUNCTION %s :\n",(temp->code).u.name);
+				break;
 			case GOTO_IR:	
 				fprintf(fp,"GOTO ");
 				fprintf(fp,"%s\n",printOperand((temp->code).u.op));
@@ -98,8 +105,11 @@ void printCodeToFile(char *filename){
 				break;
 			case DEC_IR:
 				fprintf(fp,"DEC ");
-				fprintf(fp,"%s ",printOperand((temp->code).u.array.op));
-				fprintf(fp,"%d\n",(temp->code).u.array.size);	
+				fprintf(fp,"%s",printOperand((temp->code).u.array.op));
+				if((temp->code).u.array.size!=0)
+					fprintf(fp," %d\n",(temp->code).u.array.size);	
+				else
+					fprintf(fp,"\n");
 				break;
 			case ARG_IR:
 				fprintf(fp,"ARG ");
@@ -127,5 +137,98 @@ void printCodeToFile(char *filename){
 				break;
 		}
         temp=list_entry(temp->queue.next,struct InterCodes,queue);
+	}
+}
+/*打印中间代码到屏幕*/
+void printCodeToTerminal(struct InterCodes* temp){
+	switch((temp->code).kind){
+		case ASSIGN_IR:
+			printf("%s",printOperand((temp->code).u.assign.right));
+			printf(" := ");
+			printf("%s\n",printOperand((temp->code).u.assign.left));
+			break;
+		case ADD_IR:
+			printf("%s",printOperand((temp->code).u.binop.result));
+			printf(" := ");
+			printf("%s",printOperand((temp->code).u.binop.op1));
+			printf(" + ");
+			printf("%s\n",printOperand((temp->code).u.binop.op2));
+			break;
+		case SUB_IR:
+			printf("%s",printOperand((temp->code).u.binop.result));
+			printf(" := ");
+			printf("%s",printOperand((temp->code).u.binop.op1));
+			printf(" - ");
+			printf("%s\n",printOperand((temp->code).u.binop.op2));
+			break;
+		case MUL_IR:
+			printf("%s",printOperand((temp->code).u.binop.result));
+			printf(" := ");
+			printf("%s",printOperand((temp->code).u.binop.op1));
+			printf(" * ");
+			printf("%s\n",printOperand((temp->code).u.binop.op2));
+			break;
+		case DIV_IR:
+			printf("%s",printOperand((temp->code).u.binop.result));
+			printf(" := ");
+			printf("%s",printOperand((temp->code).u.binop.op1));
+			printf(" / ");
+			printf("%s\n",printOperand((temp->code).u.binop.op2));
+			break;
+		case FUNC_IR:
+			printf("FUNCTION %s :\n",(temp->code).u.name);
+			break;
+		case LABEL_IR:
+			printf("LABEL %s :\n",printOperand((temp->code).u.op));
+			break;
+		case GOTO_IR:	
+			printf("GOTO ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		case IF_IR:
+			printf("IF ");
+			printf("%s",printOperand((temp->code).u.if_type.op1));
+			printf(" %s ",(temp->code).u.if_type.relop);
+			printf("%s",printOperand((temp->code).u.if_type.op2));
+			printf(" GOTO ");
+			printf("%s\n",printOperand((temp->code).u.if_type.lable));
+			break;
+		case RETURN_IR:
+			printf("RETURN ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		case DEC_IR:
+			printf("DEC ");
+			printf("%s",printOperand((temp->code).u.array.op));
+			if((temp->code).u.array.size!=0)
+				printf(" %d\n",(temp->code).u.array.size);	
+			else
+				printf("\n");
+			break;
+		case ARG_IR:
+			printf("ARG ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		case CALL_IR:
+			printf("%s",printOperand((temp->code).u.call_fun.returnop));
+			printf(" := CALL ");
+			printf("%s\n",(temp->code).u.call_fun.name);
+			break;
+		case PARAM_IR:
+			printf("PARAM ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		case READ_IR:
+			printf("READ ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		case WRITE_IR:
+			printf("WRITE ");
+			printf("%s\n",printOperand((temp->code).u.op));
+			break;
+		default:
+			printf("InterCodes kind type!!!\n");
+			break;
+
 	}
 }

@@ -23,7 +23,7 @@ struct Type_{
 };
 typedef struct Operand_* Operand; 
 struct Operand_ {
-	enum { VARIABLE,CONSTANT,TEMP_ADDRESS,VAR_ADDRESS,TEMP,LABLE,VAR_MEMORY,TEMP_MEMORY } kind; 
+	enum { VARIABLE,CONSTANT,TEMP_ADDRESS,VAR_ADDRESS,TEMP,LABEL,VAR_MEMORY,TEMP_MEMORY } kind; 
 	union {
 		int var_no;
 		int value; 

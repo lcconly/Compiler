@@ -19,7 +19,10 @@ int main(int argc,char** argv){
         add_func_read_and_write();
 		travel_grammer_tree(root);
         if(sem_error==0){
-		//	list_init(&ir_head);
+			list_init(&ir_head);
+			translate(root);
+			optimize();
+			printCodeToFile("out.ir");
 		}
 	}
     return 0;

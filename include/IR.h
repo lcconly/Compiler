@@ -10,7 +10,7 @@
 #include"semantic_analysis.h"
 #include"list.h"
 #include<stdarg.h>
-#define DATASIZE 10
+#define DATASIZE 100
 /*typedef struct Operand_* Operand; 
 struct Operand_ {
 	enum { VARIABLE,CONSTANT,TEMP_ADDRESS,VAR_ADDRESS,TEMP,LABLE,VAR_MEMORY,TEMP_MEMORY } kind; 
@@ -24,7 +24,7 @@ struct Operand_ {
 	} u; 
 };*/
 struct InterCode {
-	enum { ASSIGN_IR,ADD_IR,SUB_IR,MUL_IR,DIV_IR,GOTO_IR,IF_IR,RETURN_IR,DEC_IR,ARG_IR,CALL_IR,PARAM_IR,READ_IR,WRITE_IR} kind; 
+	enum { ASSIGN_IR,ADD_IR,SUB_IR,MUL_IR,DIV_IR,FUNC_IR,GOTO_IR,IF_IR,RETURN_IR,DEC_IR,ARG_IR,CALL_IR,PARAM_IR,READ_IR,WRITE_IR,LABEL_IR} kind; 
 	union {
 		struct {
 			Operand right, left;
@@ -111,4 +111,12 @@ FieldList* translate_args(struct TreeNode *root,FieldList *args);
 void translate(struct TreeNode* root);
 /*翻译fundec*/
 void translate_fundec(struct TreeNode *root);
+/*获取数组大小*/
+int getArraySize(Type *type);
+/*翻译declist*/
+void translate_declist(struct TreeNode *root);
+/*打印中间代码到屏幕*/
+void printCodeToTerminal(struct InterCodes* temp);
+/*youhua*/
+void optimize();
 #endif
