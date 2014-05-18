@@ -17,7 +17,7 @@ void insertCodes(int n, ...){
             printf("insertCodes a NULL code!!!\n");
             continue;
         }
-		printCodeToTerminal(code_temp);
+		//printCodeToTerminal(code_temp);
 		list_add_before(&ir_head,&code_temp->queue);
 	} 
     va_end(codelist);
@@ -252,7 +252,7 @@ void translate_Exp(struct TreeNode *root,Operand op){
             else if(!strcmp(child->data,"ID")){
                 temp=lookup(varList,child->sub_data);
                 if(temp==NULL){
-                    if(fetch(child->sub_data,varList)->type->kind==0) 
+                    if(fetch(child->sub_data,varList)!=NULL&&fetch(child->sub_data,varList)->type->kind==0) 
                         temp=new_variable(VARIABLE);
                     else temp=new_variable(VAR_ADDRESS);
                     inser_field_code(varList,child->sub_data,temp);
@@ -296,7 +296,7 @@ void translate_Exp(struct TreeNode *root,Operand op){
                 if(root->childNode[0]->childnum==0){
                     t1=lookup(varList,root->childNode[0]->childNode[0]->sub_data);
                     if(t1==NULL){
-                        if(fetch(root->childNode[0]->childNode[0]->sub_data,varList)->type->kind==0) 
+                        if(fetch(root->childNode[0]->childNode[0]->sub_data,varList)!=NULL&&fetch(root->childNode[0]->childNode[0]->sub_data,varList)->type->kind==0) 
                             t1=new_variable(VARIABLE);
                         else t1=new_variable(VAR_ADDRESS);
                         inser_field_code(varList,root->childNode[0]->childNode[0]->sub_data,t1);
@@ -471,7 +471,7 @@ FieldList* translate_args(struct TreeNode *root,FieldList *args){
                 if(root->childNode[0]->childnum==0&&!strcmp(root->childNode[0]->childNode[0]->data,"ID")){
                     op=lookup(varList,root->childNode[0]->childNode[0]->sub_data);
                     if(op==NULL){
-                        if(fetch(root->childNode[0]->childNode[0]->sub_data,varList)->type->kind==0) 
+                        if(fetch(root->childNode[0]->childNode[0]->sub_data,varList)!=NULL&&fetch(root->childNode[0]->childNode[0]->sub_data,varList)->type->kind==0) 
                             op=new_variable(VARIABLE);
                         else op=new_variable(VAR_ADDRESS);
                         inser_field_code(varList,root->childNode[0]->childNode[0]->sub_data,op);
@@ -563,9 +563,6 @@ void translate_Cond(struct TreeNode *root,Operand label1,Operand label2){
             }
             break;
         }
-        default:
-            printf("error cond childnum!!\n");
-            break ;
     }
     Operand t1=new_temp(TEMP);
     translate_Exp(root,t1);
@@ -647,7 +644,7 @@ void translate_fundec(struct TreeNode *root){
             else if(field->type->kind==basic&&field->name!=NULL){
                 Operand temp=lookup(varList,field->name);
                 if(temp==NULL){
-                    if(fetch(field->name,varList)->type->kind==0) 
+                    if(fetch(field->name,varList)!=NULL&&fetch(field->name,varList)->type->kind==0) 
                         temp=new_variable(VARIABLE);
                     else temp=new_variable(VAR_ADDRESS);
                     inser_field_code(varList,field->name,temp);
@@ -657,7 +654,7 @@ void translate_fundec(struct TreeNode *root){
             else if(field->type->kind==array){
                 Operand temp=lookup(varList,field->name);
                 if(temp==NULL){
-                    if(fetch(field->name,varList)->type->kind==0) 
+                    if(fetch(field->name,varList)!=NULL&&fetch(field->name,varList)->type->kind==0) 
                         temp=new_variable(VARIABLE);
                     else temp=new_variable(VAR_ADDRESS);
                     inser_field_code(varList,field->name,temp);
@@ -703,7 +700,7 @@ void translate_declist(struct TreeNode *root){
                     FieldList *field=fetch(node->sub_data,varList);
                     Operand temp=lookup(varList,node->sub_data);
                     if(temp==NULL){
-                        if(fetch(node->sub_data,varList)->type->kind==0) 
+                        if(fetch(node->sub_data,varList)!=NULL&&fetch(node->sub_data,varList)->type->kind==0) 
                             temp=new_variable(VARIABLE);
                         else temp=new_variable(VAR_ADDRESS);
                         inser_field_code(varList,node->sub_data,temp);
@@ -712,7 +709,8 @@ void translate_declist(struct TreeNode *root){
 					temp1->kind=VARIABLE;
 					temp1->u.var_no=temp->u.var_no;
                     //printf("size : %d\n",getArraySize(field->type));
-                    insertCodes(1,gen_array(DEC_IR,temp1,4*getArraySize(field->type)));
+                    if(field!=NULL&&field->type->kind!=2)
+                        insertCodes(1,gen_array(DEC_IR,temp1,4*getArraySize(field->type)));
                     return ;
                 }
             }
@@ -772,7 +770,7 @@ bool charge_op_equal(Operand op1,Operand op2){
 				return false;
 			break;
 		case TEMP_MEMORY:
-			if((op1->u).temp_no=(op2->u).temp_no)
+			if((op1->u).temp_no!=(op2->u).temp_no)
 				return false;
 			break;
 		default:
@@ -781,8 +779,8 @@ bool charge_op_equal(Operand op1,Operand op2){
 	}
 	return true;
 }
-/*优化*/
-void optimize(){
+/*优化死代码*/
+void optimize_dead_code(){
 	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
     while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
         struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
@@ -791,27 +789,27 @@ void optimize(){
 			while(next!=list_entry(&ir_head,struct InterCodes,queue)){
 				switch(next->code.kind){
 					case ASSIGN_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.assign.right))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.assign.left))
 							is_used=1;
 						break;
 					case ADD_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
-						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2))
 							is_used=1;
 						break;
 					case SUB_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
-						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2))
 							is_used=1;
 						break;
 					case MUL_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
-						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2))
 							is_used=1;
 						break;
 					case DIV_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
-						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2))
 							is_used=1;
 						break;
 					case LABEL_IR:
@@ -821,18 +819,18 @@ void optimize(){
 					case GOTO_IR:	
 						break;
 					case IF_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.if_type.op1)||
-						charge_op_equal(temp->code.u.assign.left,next->code.u.if_type.op2))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op1)||
+						charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op2))
 							is_used=1;
 						break;
 					case RETURN_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.op))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
 							is_used=1;
 						break;
 					case DEC_IR:
 						break;
 					case ARG_IR:
-						if(charge_op_equal(temp->code.u.assign.left,next->code.u.op))
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
 							is_used=1;
 						break;
 					case CALL_IR:
@@ -842,6 +840,8 @@ void optimize(){
 					case READ_IR:
 						break;
 					case WRITE_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+                            is_used=1;
 						break;
 					default:
 						break;
@@ -852,9 +852,208 @@ void optimize(){
 			}
 		struct InterCodes *p=temp;
         temp=list_entry(temp->queue.next,struct InterCodes,queue);
-		if(is_used==1){
+		if(is_used!=1&&next==list_entry(&ir_head,struct InterCodes,queue)&&temp!=list_entry(&ir_head,struct InterCodes,queue)){
 			list_del(&p->queue);
-			free(p);
+		    free(p);
 		}
     } 
+}
+/*优化立即数代码*/
+void optimize_constant_code(){
+	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
+    while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
+        struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
+        if(temp->code.kind==ASSIGN_IR&&temp->code.u.assign.left->kind==CONSTANT&&temp->code.u.assign.right->kind!=VARIABLE&&temp->code.u.assign.right->kind!=VAR_ADDRESS&&temp->code.u.assign.right->kind!=VAR_MEMORY&&temp->code.u.assign.right->kind!=TEMP_MEMORY)
+			while(next!=list_entry(&ir_head,struct InterCodes,queue)){
+				switch(next->code.kind){
+					case ASSIGN_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.assign.left)){
+                            next->code.u.assign.left=temp->code.u.assign.left;
+                        }
+						break;
+					case ADD_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case SUB_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case MUL_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case DIV_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case LABEL_IR:
+						break;
+					case FUNC_IR:
+						break;
+					case GOTO_IR:	
+						break;
+					case IF_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op1)){ 
+                            next->code.u.if_type.op1=temp->code.u.assign.left;
+                        }
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op2)){ 
+                            next->code.u.if_type.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case RETURN_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					case DEC_IR:
+						break;
+					case ARG_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					case CALL_IR:
+						break;
+					case PARAM_IR:
+						break;
+					case READ_IR:
+						break;
+					case WRITE_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					default:
+						break;
+				}
+				next=list_entry(next->queue.next,struct InterCodes,queue);
+			}
+        temp=list_entry(temp->queue.next,struct InterCodes,queue);
+    } 
+}
+/*优化变量二进制运算代码*/
+void optimize_binop_code(){
+	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
+    while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
+        struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
+        if((temp->code.kind==ASSIGN_IR&&(temp->code.u.assign.left->kind==VARIABLE||temp->code.u.assign.left->kind==VAR_ADDRESS)&&temp->code.u.assign.right->kind==TEMP))
+			while(next!=list_entry(&ir_head,struct InterCodes,queue)){
+				switch(next->code.kind){
+					case ASSIGN_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.assign.left)){
+                            next->code.u.assign.left=temp->code.u.assign.left;
+                        }
+						break;
+					case ADD_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case SUB_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case MUL_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case DIV_IR:
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op1)){
+                            next->code.u.binop.op1=temp->code.u.assign.left;
+                        }
+                        if(charge_op_equal(temp->code.u.assign.right,next->code.u.binop.op2)){
+                            next->code.u.binop.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case LABEL_IR:
+						break;
+					case FUNC_IR:
+						break;
+					case GOTO_IR:	
+						break;
+					case IF_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op1)){ 
+                            next->code.u.if_type.op1=temp->code.u.assign.left;
+                        }
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.if_type.op2)){ 
+                            next->code.u.if_type.op2=temp->code.u.assign.left;
+                        }
+						break;
+					case RETURN_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					case DEC_IR:
+						break;
+					case ARG_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					case CALL_IR:
+						break;
+					case PARAM_IR:
+						break;
+					case READ_IR:
+						break;
+					case WRITE_IR:
+						if(charge_op_equal(temp->code.u.assign.right,next->code.u.op))
+							next->code.u.op=temp->code.u.assign.left;
+						break;
+					default:
+						break;
+				}
+				next=list_entry(next->queue.next,struct InterCodes,queue);
+			}
+        temp=list_entry(temp->queue.next,struct InterCodes,queue);
+    } 
+}
+/*优化v=v op v的情况*/
+void optimize_binop_code_2() {
+	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
+    while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
+        struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
+		if(next!=list_entry(&ir_head,struct InterCodes,queue)){
+			if ((next->code).kind == ASSIGN_IR && ((temp->code).kind == ADD_IR ||(temp->code).kind == SUB_IR ||(temp->code).kind == MUL_IR ||(temp->code).kind == DIV_IR )&&(next->code).u.binop.result->kind!=TEMP_MEMORY) 
+			{
+				if(charge_op_equal((temp->code).u.binop.result,(next->code).u.assign.left)) {
+					(temp->code).u.binop.result = (next->code).u.assign.right;
+                    list_del(&(next->queue));
+					free(next);
+				}
+			}
+		}
+        temp=list_entry(temp->queue.next,struct InterCodes,queue);
+	}
+}
+/*优化*/
+void optimize(){
+    optimize_constant_code();
+    optimize_binop_code();
+    optimize_dead_code();
+    optimize_binop_code_2();
 }

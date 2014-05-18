@@ -5,7 +5,10 @@
 extern int hasError;
 int sem_error=0;
 int main(int argc,char** argv){
-    if(argc<=1) return 1;
+	if(argc!=3) {
+		printf("Usage: ./parser test.cmm out.ir\n");
+		return 1;
+	}
     FILE *f =fopen(argv[1],"r");
     if(!f){
         perror(argv[1]);
@@ -15,7 +18,7 @@ int main(int argc,char** argv){
     //yydebug=1;
     yyparse();
     if(hasError==0){
-        printf("%s (%d)\n",root->data,root->line);
+        //printf("%s (%d)\n",root->data,root->line);
         printTree(root);
         add_func_read_and_write();
 		travel_grammer_tree(root);
@@ -24,7 +27,7 @@ int main(int argc,char** argv){
 			list_init(&ir_head);
 			translate(root);
 			optimize();
-			printCodeToFile("out.ir");
+			printCodeToFile(argv[2]);
 		}
 	}
     return 0;

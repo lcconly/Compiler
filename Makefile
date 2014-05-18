@@ -2,18 +2,18 @@
 CFILES = $(shell find src/ -name "*.c")
 HFILES = $(shell find include/ -name "*.h")
 
+parser:$(CFILES) $(HFILES) syntax.tab.c syntax.tab.h lex.yy.c
+	gcc $(CFILES) syntax.tab.c -g -lfl -ly -o parser
+
 syntax.tab.h syntax.tab.c:syntax.y
 	bison -d syntax.y
 
 lex.yy.c:lexical.l
 	flex lexical.l
 
-parser:$(CFILES) $(HFILES) syntax.tab.c syntax.tab.h lex.yy.c
-	gcc $(CFILES) syntax.tab.c -g -lfl -ly -o parser
-
 .PHONY:run clean coredump
 run:parser
-	./parser test.cmm
+	./parser test.cmm out.ir
 coredump:
 	gdb ./parser ./core
 

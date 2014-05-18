@@ -117,10 +117,16 @@ int getArraySize(Type *type);
 void translate_declist(struct TreeNode *root);
 /*打印中间代码到屏幕*/
 void printCodeToTerminal(struct InterCodes* temp);
-/*优化*/
-void optimize();
 /*单链表反转*/
 FieldList *listreverse(FieldList *pHead)  ;
 /*判断operand相等*/
 bool charge_op_equal(Operand op1,Operand op2);
+/*优化死代码*/
+void optimize_dead_code();
+/*优化立即数代码*/
+void optimize_constant_code();
+/*优化变量二进制运算代码*/
+void optimize_binop_code();
+/*优化*/
+void optimize();
 #endif

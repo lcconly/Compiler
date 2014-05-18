@@ -230,7 +230,7 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 //printf("type in declist------- %s\n",(field->type->u).structure->name);
                 //printf("~~~~~~~~~~~~~~~~~~~\n");
             }
-            else{
+            else if(tag==0){
                 FieldList *p,*q;
                 p=((field->type)->u).structure;
                 //if(p==NULL) printf("!!!!!!!!!!!!!!!!\n");
