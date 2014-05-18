@@ -14,7 +14,7 @@ FieldList* structList[MAXHARSHSIZE];
 FieldList* funcList[MAXHARSHSIZE];
 Type *funType;
 FieldList *func;
-static int sem_error=0;
+extern int sem_error;
 /*遍历语法树*/
 void travel_grammer_tree(struct TreeNode *root);
 /*遍历specifier_node返回类型*/
@@ -34,7 +34,7 @@ void travel_stmt_tree(struct TreeNode *root);
 /*遍历全局变量列表*/
 void travel_extdeclist_tree(struct TreeNode *root,Type *type);
 /*遍历deflist节点，包含全局变量和函数内变量*/
-FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field);
+FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field,int tag,int tag2);
 /*分组2.3判断结构内部定义相等则两个结构相同*/
 bool charge_struct_equal(Type *type1,Type *type2);
 /*判断两个type是否相等*/

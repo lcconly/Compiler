@@ -17,7 +17,7 @@ void travel_grammer_tree(struct TreeNode *root){
     struct TreeNode *temp=NULL;
     for(i=0; i<=root->childnum; i++){
         temp=root->childNode[i];
-        if(!strcmp(temp->data,"Def") || !strcmp(temp->data,"ExtDef")){
+        if(!strcmp(temp->data,"ExtDef")){
             //printf("travel_grammer_tree\n");
             travel_def_tree(temp);
             continue;
@@ -54,7 +54,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         if(!strcmp(tag_node->data,"OptTag")){
             struct TreeNode *deflist_node=type_node->childNode[3];
             FieldList *field=(FieldList *)malloc(sizeof(FieldList));
-            field=travel_deflist_tree(deflist_node,field);
+            field=travel_deflist_tree(deflist_node,field,0,1);
             (type->u).structure=field;
             //printf("!!!!!!\n");
             //printf("childnum : %d\n",tag_node->childnum);
@@ -80,7 +80,7 @@ Type* travel_specifier_tree(struct TreeNode *root){
         else if(!strcmp(tag_node->data,"LC")){//结构类型名为空的情况
             struct TreeNode *deflist_node=type_node->childNode[2];
             FieldList *field=(FieldList *)malloc(sizeof(FieldList));
-            field=travel_deflist_tree(deflist_node,field);
+            field=travel_deflist_tree(deflist_node,field,0,1);
             (type->u).structure=field;
             ((type->u).structure)->name="";
             //printf("!!!!!!\n");
@@ -144,11 +144,10 @@ void travel_def_tree(struct TreeNode *root){
     FieldList *field=(FieldList*)malloc(sizeof(FieldList));
     if(type==NULL)
         return;
-    if(!strcmp(declist_node->data,"DecList")||
-        !strcmp(declist_node->data,"ExtDecList"))
+    //if(!strcmp(declist_node->data,"DecList")||
+	if(!strcmp(declist_node->data,"ExtDecList"))
         travel_extdeclist_tree(declist_node,type);//类型定义
     else if(!strcmp(declist_node->data,"FunDec")){//函数定义
-        //printf("travel_fundec_tree\n");
         func=(FieldList*)malloc(sizeof(FieldList));
         func->name=declist_node->childNode[0]->sub_data;
         func->type=type;
@@ -166,13 +165,19 @@ void travel_def_tree(struct TreeNode *root){
 			sem_error=1;
             printf("Error type 4 at line %d: Redefined function \"%s\"\n",root->line,func->name);
 		}
-        if(field->type==NULL)
-            travel_declist_tree(root->childNode[2],type,field,1);
+		//	printf("11111111\n");
+        //if(field->type==NULL){
+		//	printf("22222222!\n");
+			//printf("-----%d\n",type->kind);
+			//travel_extdeclist_tree(root->childNode[2],type);
+			//travel_declist_tree(root->childNode[2],type,field,1);
+			travel_deflist_tree(root->childNode[2],field,1,0);
+		//}
         travel_grammer_tree(root->childNode[2]);
     }
 }
 /*遍历deflist节点，包含全局变量和函数内变量*/
-FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
+FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field,int tag,int tag2){
     int i;
     //printf("travel_deflist_tree!\n");
     if(root!=NULL)
@@ -183,12 +188,13 @@ FieldList* travel_deflist_tree(struct TreeNode *root,FieldList *field){
                 struct TreeNode *declist_node=root->childNode[1];
                 Type *type=travel_specifier_tree(specifier_node);
                 //printf("type in def %d\n",type->kind);
-                travel_extdeclist_tree(root,type);
-                field=travel_declist_tree(declist_node,type,field,0);
+                if(tag2==0)
+					travel_extdeclist_tree(root,type);
+                field=travel_declist_tree(declist_node,type,field,tag);
                 //printf("type in def %s\n",field->name);
                 break;
             }
-            field=travel_deflist_tree(root->childNode[i],field);
+            field=travel_deflist_tree(root->childNode[i],field,tag,tag2);
         }
     return field;
 }
@@ -243,11 +249,9 @@ FieldList* travel_declist_tree(struct TreeNode *root,Type *type,FieldList* field
                 var->tail=NULL;
             }
             if(root->childnum==2){
-                //printf("!!!!!!!!!!!!!!!\n");
                 Type *ty=travel_exp_tree(root->childNode[2]);
                 //printf("kind %d \n",(field->type->u).basic);
                 if(!charge_type_equal(type,ty)&&tag==1){
-					printf("!!\n");
                     sem_error=1;
                     printf("Error type 5 at line %d: Type mismached\n",node->line);
 				}
@@ -296,6 +300,7 @@ void travel_extdeclist_tree(struct TreeNode *root,Type *type){
 				sem_error=1;
                 printf("Error type 3 at line %d: Redefined variable \"%s\"\n",root->line,var->name);
             }
+			//show_hash_table(varList);
             break;
         }
         travel_extdeclist_tree(root->childNode[i],type);
@@ -451,6 +456,7 @@ Type* travel_exp_tree(struct TreeNode *root){
                 }
             }
             if(var==NULL){//从表中获取该id的变量表为空，错误类型1
+				//show_hash_table(varList);
 				sem_error=1;
                 printf("Error type 1 at line %d: Undefined variable \"%s\"\n",
                        root->line,id_node->sub_data);
@@ -807,7 +813,7 @@ bool charge_args_equal(FieldList *args1,FieldList *args2){
             case 2:{
                 if(q->type->kind!=2)
                     return false;
-                if(strcmp((q->type->u).structure->name,(p->type->u).structure->name))
+                if(!charge_struct_equal(q->type,p->type))
                     return false;
                 break;
             }

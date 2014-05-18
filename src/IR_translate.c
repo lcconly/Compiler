@@ -220,7 +220,7 @@ int getArraySize(Type *type){
     }
     return result;
 }
-/*list reverse*/
+/*单链表反转*/
 FieldList *listreverse(FieldList *pHead)  
 {  
     FieldList *pList=pHead;  
@@ -738,20 +738,123 @@ void translate(struct TreeNode* root){
     }
 }
 
+/*判断operand相等*/
+bool charge_op_equal(Operand op1,Operand op2){
+	if(op1->kind!=op2->kind)
+		return false;
+	switch(op1->kind){	
+		case VARIABLE:
+			if((op1->u).var_no!=(op2->u).var_no)
+				return false;
+			break;
+		case CONSTANT:
+			if((op1->u).value!=(op2->u).value)
+				return false;
+			break;
+		case TEMP_ADDRESS:
+			if((op1->u).temp_no!=(op2->u).temp_no)
+				return false;
+			break;
+		case VAR_ADDRESS:
+			if((op1->u).var_no!=(op2->u).var_no)
+				return false;
+			break;
+		case TEMP:
+			if((op1->u).temp_no!=(op2->u).temp_no)
+				return false;
+			break;
+		case LABEL:
+			if((op1->u).lable_no!=(op2->u).lable_no)
+				return false;
+			break;
+		case VAR_MEMORY:
+			if((op1->u).var_no!=(op2->u).var_no)
+				return false;
+			break;
+		case TEMP_MEMORY:
+			if((op1->u).temp_no=(op2->u).temp_no)
+				return false;
+			break;
+		default:
+			printf("Operand kind error!!!\n");
+			break;
+	}
+	return true;
+}
+/*优化*/
 void optimize(){
 	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
     while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
         struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
-        if(next!=list_entry(&ir_head,struct InterCodes,queue)){
-            if(next->code.kind==ASSIGN_IR||next->code.kind==ADD_IR||next->code.kind==SUB_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR){
-                if((temp->code).u.binop.result==(next->code).u.assign.right){
-                    printf("!!!!!!!!!!\n");
-                    (temp->code).u.binop.result=(next->code).u.assign.left;
-                    list_del(&(next->queue));
-                    free(next);
-                }
-            }
-        }
+		int is_used=0;
+        if(temp->code.kind==ASSIGN_IR)
+			while(next!=list_entry(&ir_head,struct InterCodes,queue)){
+				switch(next->code.kind){
+					case ASSIGN_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.assign.right))
+							is_used=1;
+						break;
+					case ADD_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+							is_used=1;
+						break;
+					case SUB_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+							is_used=1;
+						break;
+					case MUL_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+							is_used=1;
+						break;
+					case DIV_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op1)||
+						charge_op_equal(temp->code.u.assign.left,next->code.u.binop.op2))
+							is_used=1;
+						break;
+					case LABEL_IR:
+						break;
+					case FUNC_IR:
+						break;
+					case GOTO_IR:	
+						break;
+					case IF_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.if_type.op1)||
+						charge_op_equal(temp->code.u.assign.left,next->code.u.if_type.op2))
+							is_used=1;
+						break;
+					case RETURN_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.op))
+							is_used=1;
+						break;
+					case DEC_IR:
+						break;
+					case ARG_IR:
+						if(charge_op_equal(temp->code.u.assign.left,next->code.u.op))
+							is_used=1;
+						break;
+					case CALL_IR:
+						break;
+					case PARAM_IR:
+						break;
+					case READ_IR:
+						break;
+					case WRITE_IR:
+						break;
+					default:
+						break;
+				}
+				if(is_used==1)
+					break;
+				next=list_entry(next->queue.next,struct InterCodes,queue);
+			}
+		struct InterCodes *p=temp;
         temp=list_entry(temp->queue.next,struct InterCodes,queue);
+		if(is_used==1){
+			list_del(&p->queue);
+			free(p);
+		}
     } 
 }

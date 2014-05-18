@@ -117,8 +117,10 @@ int getArraySize(Type *type);
 void translate_declist(struct TreeNode *root);
 /*打印中间代码到屏幕*/
 void printCodeToTerminal(struct InterCodes* temp);
-/*youhua*/
+/*优化*/
 void optimize();
-/*list reverse*/
+/*单链表反转*/
 FieldList *listreverse(FieldList *pHead)  ;
+/*判断operand相等*/
+bool charge_op_equal(Operand op1,Operand op2);
 #endif
