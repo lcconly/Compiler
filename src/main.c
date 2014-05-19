@@ -19,7 +19,7 @@ int main(int argc,char** argv){
     yyparse();
     if(hasError==0){
         //printf("%s (%d)\n",root->data,root->line);
-        printTree(root);
+        //printTree(root);
         add_func_read_and_write();
 		travel_grammer_tree(root);
 		//show_hash_table(varList);

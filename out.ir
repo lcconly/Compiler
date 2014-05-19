@@ -6,8 +6,7 @@ v3 := #0
 DEC v4 600
 v5 := v0 * v0
 v6 := v1 * v1
-t12 := #0 - #1
-IF t12 != #0 GOTO label0
+IF #-1 != #0 GOTO label0
 GOTO label2
 LABEL label2 :
 t14 := v5 + v6
@@ -22,20 +21,16 @@ t20 := t22 + t23
 t21 := v0 - #8
 v2 := t20 / t21
 LABEL label1 :
-t44 := #1 + #2
-t42 := v0 * t44
+t42 := v0 * #3
 t39 := #7 - t42
-t50 := #10 - #1
-t47 := #36 / t50
-t40 := t47 * v1
+t40 := #4 * v1
 t37 := t39 - t40
 t38 := v5 * v6
 t36 := t37 + t38
 v7 := #0 - t36
 v2 := v7 - v7
 LABEL label3 :
-t60 := #100 + #50
-IF v2 < t60 GOTO label4
+IF v2 < #150 GOTO label4
 GOTO label5
 LABEL label4 :
 t67 := v2 * #4
@@ -44,18 +39,16 @@ t64 := &v4 + t67
 v2 := v2 + #1
 GOTO label3
 LABEL label5 :
-t83 := #0 * #4
-t79 := &v4 + t83
+t79 := &v4 + #0
 t77 := *t79 + v5
 t75 := t77 - #1
 v2 := t75 - v5
 LABEL label6 :
-t86 := #0 - #1
 t92 := v1 * v1
 t89 := v7 - t92
 t90 := v0 * v0
 t87 := t89 + t90
-t85 := t86 * t87
+t85 := #-1 * t87
 IF v2 < t85 GOTO label7
 GOTO label8
 LABEL label7 :
@@ -65,8 +58,7 @@ v9 := v5
 v10 := v8 - #1
 LABEL label9 :
 t110 := v0 + v1
-t108 := t110 - #10
-t107 := t108 + #3
+t107 := t110 + #-7
 IF v9 > t107 GOTO label10
 GOTO label11
 LABEL label10 :

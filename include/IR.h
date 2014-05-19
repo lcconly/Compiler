@@ -103,7 +103,7 @@ void translate_Exp(struct TreeNode* root,Operand op);
 void translate_Cond(struct TreeNode* root,Operand lable1,Operand lable2);
 /*翻译stmt*/
 void translate_Stmt(struct TreeNode* root);
-/*op插入符号表*/
+/*插入中间代码到符号表*/
 void inser_field_code(FieldList** list,char *name,Operand op);
 /*遍历args的子树*/
 FieldList* translate_args(struct TreeNode *root,FieldList *args);
@@ -125,6 +125,8 @@ bool charge_op_equal(Operand op1,Operand op2);
 void optimize_dead_code();
 /*优化立即数代码*/
 void optimize_constant_code();
+/*优化立即数二元运算代码*/
+void optimize_constant_op_code();
 /*优化变量二进制运算代码*/
 void optimize_binop_code();
 /*优化*/
