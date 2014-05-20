@@ -1113,7 +1113,7 @@ void optimize_constant_op_code(){
                     temp->code.u.assign.left=temp->code.u.binop.op1;
                     temp->code.u.assign.left->u.value=temp->code.u.binop.op1->u.value+temp->code.u.binop.op2->u.value;
                 }
-                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==TEMP){
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
                     if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
                         if((next->code.kind==ADD_IR&&temp->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==SUB_IR)){
                             next->code.u.binop.op2=temp->code.u.binop.op2;
@@ -1135,7 +1135,7 @@ void optimize_constant_op_code(){
                         }
                     }
                 }
-                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind==TEMP){
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
                     if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
                         if((next->code.kind==ADD_IR&&temp->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==SUB_IR)){
                             next->code.u.binop.op2=temp->code.u.binop.op1;
@@ -1165,7 +1165,7 @@ void optimize_constant_op_code(){
                     temp->code.u.assign.left=temp->code.u.binop.op1;
                     temp->code.u.assign.left->u.value=temp->code.u.binop.op1->u.value-temp->code.u.binop.op2->u.value;
                 }
-                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==TEMP){
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
                     if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
                         if((next->code.kind==ADD_IR&&temp->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==SUB_IR)){
                             next->code.u.binop.op2=temp->code.u.binop.op2;
@@ -1187,7 +1187,7 @@ void optimize_constant_op_code(){
                         }
                     }
                 }
-                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind==TEMP){
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
                     if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
                         if((temp->code.kind==ADD_IR&&next->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==SUB_IR)){
                             next->code.u.binop.op2=temp->code.u.binop.op1;
@@ -1217,6 +1217,78 @@ void optimize_constant_op_code(){
                     temp->code.u.assign.left=temp->code.u.binop.op1;
                     temp->code.u.assign.left->u.value=temp->code.u.binop.op1->u.value*temp->code.u.binop.op2->u.value;
                 }
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
+                    if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
+                        if((next->code.kind==MUL_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op2=temp->code.u.binop.op2;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value*temp->code.u.binop.op1->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op1->u.value%temp->code.u.binop.op1->u.value==0){
+                            next->code.u.binop.op2=temp->code.u.binop.op2;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value/temp->code.u.binop.op1->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op1->u.value%next->code.u.binop.op1->u.value==0){
+                            temp->code.u.binop.result=next->code.u.binop.result;
+                            temp->code.u.binop.op1->u.value=temp->code.u.binop.op1->u.value/next->code.u.binop.op1->u.value;
+                            list_del(&(next->queue));
+                            code_num--;
+                            next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        }
+                    }
+                    else if(next->code.u.binop.op1->kind!=CONSTANT&&next->code.u.binop.op2->kind==CONSTANT&&charge_op_equal(next->code.u.binop.op1,temp->code.u.binop.result)){
+                        if((next->code.kind==MUL_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op1=temp->code.u.binop.op2;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value*temp->code.u.binop.op1->u.value;
+                        }
+                        else if(((next->code.kind==SUB_IR&&temp->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==ADD_IR))&&next->code.u.binop.op2->u.value%temp->code.u.binop.op1->u.value==0){
+                            next->code.u.binop.op1=temp->code.u.binop.op2;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value/temp->code.u.binop.op1->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op1->u.value%next->code.u.binop.op2->u.value==0){
+                            temp->code.u.binop.result=next->code.u.binop.result;
+                            temp->code.u.binop.op1->u.value=temp->code.u.binop.op1->u.value/next->code.u.binop.op2->u.value;
+                            list_del(&(next->queue));
+                            code_num--;
+                            next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        }
+                    }
+                }
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
+                    if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
+                        if((temp->code.kind==MUL_IR&&next->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op2=temp->code.u.binop.op1;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value*temp->code.u.binop.op2->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op1->u.value%temp->code.u.binop.op2->u.value==0){
+                            next->code.u.binop.op2=temp->code.u.binop.op1;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value/temp->code.u.binop.op2->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op2->u.value%next->code.u.binop.op1->u.value==0){
+                            temp->code.u.binop.result=next->code.u.binop.result;
+                            temp->code.u.binop.op2->u.value=temp->code.u.binop.op2->u.value/next->code.u.binop.op1->u.value;
+                            list_del(&(next->queue));
+                            code_num--;
+                            next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        }
+                    }
+                    else if(next->code.u.binop.op1->kind!=CONSTANT&&next->code.u.binop.op2->kind==CONSTANT&&charge_op_equal(next->code.u.binop.op1,temp->code.u.binop.result)){
+                        if((temp->code.kind==MUL_IR&&next->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op1=temp->code.u.binop.op1;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value*temp->code.u.binop.op2->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op2->u.value%temp->code.u.binop.op2->u.value==0){
+                            next->code.u.binop.op1=temp->code.u.binop.op1;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value/temp->code.u.binop.op2->u.value;
+                        }
+                        else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op2->u.value%next->code.u.binop.op2->u.value==0){
+                            temp->code.u.binop.result=next->code.u.binop.result;
+                            temp->code.u.binop.op2->u.value=temp->code.u.binop.op2->u.value/next->code.u.binop.op2->u.value;
+                            list_del(&(next->queue));
+                            code_num--;
+                            next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        }
+                    }
+                }
 				break;
 			case DIV_IR:
                 if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->u.value%temp->code.u.binop.op2->u.value==0){
@@ -1224,6 +1296,78 @@ void optimize_constant_op_code(){
                     temp->code.u.assign.right=temp->code.u.binop.result;
                     temp->code.u.assign.left=temp->code.u.binop.op1;
                     temp->code.u.assign.left->u.value=temp->code.u.binop.op1->u.value / temp->code.u.binop.op2->u.value;
+                }
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
+                    if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
+                        if((next->code.kind==MUL_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op2=temp->code.u.binop.op2;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value*temp->code.u.binop.op1->u.value;
+                        }
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op1->u.value%temp->code.u.binop.op1->u.value==0){
+                        //    next->code.u.binop.op2=temp->code.u.binop.op2;
+                        //    next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value/temp->code.u.binop.op1->u.value;
+                        //}
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op1->u.value%next->code.u.binop.op1->u.value==0){
+                        //    temp->code.u.binop.result=next->code.u.binop.result;
+                        //    temp->code.u.binop.op1->u.value=temp->code.u.binop.op1->u.value/next->code.u.binop.op1->u.value;
+                        //    list_del(&(next->queue));
+                        //    code_num--;
+                        //    next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        //}
+                    }
+                    else if(next->code.u.binop.op1->kind!=CONSTANT&&next->code.u.binop.op2->kind==CONSTANT&&charge_op_equal(next->code.u.binop.op1,temp->code.u.binop.result)){
+                        if((next->code.kind==MUL_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op1=temp->code.u.binop.op2;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value*temp->code.u.binop.op1->u.value;
+                        }
+                        //else if(((next->code.kind==SUB_IR&&temp->code.kind==ADD_IR)||(temp->code.kind==SUB_IR&&next->code.kind==ADD_IR))&&next->code.u.binop.op2->u.value%temp->code.u.binop.op1->u.value==0){
+                        //    next->code.u.binop.op1=temp->code.u.binop.op2;
+                        //    next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value/temp->code.u.binop.op1->u.value;
+                        //}
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op1->u.value%next->code.u.binop.op2->u.value==0){
+                        //    temp->code.u.binop.result=next->code.u.binop.result;
+                        //    temp->code.u.binop.op1->u.value=temp->code.u.binop.op1->u.value/next->code.u.binop.op2->u.value;
+                        //    list_del(&(next->queue));
+                        //    code_num--;
+                        //    next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        //}
+                    }
+                }
+                else if(next!=list_entry(&ir_head,struct InterCodes,queue)&&(next->code.kind==SUB_IR||next->code.kind==ADD_IR||next->code.kind==MUL_IR||next->code.kind==DIV_IR)&&temp->code.u.binop.op2->kind==CONSTANT&&temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.result->kind==TEMP){
+                    if(next->code.u.binop.op1->kind==CONSTANT&&next->code.u.binop.op2->kind!=CONSTANT&&charge_op_equal(next->code.u.binop.op2,temp->code.u.binop.result)){
+                        if((temp->code.kind==MUL_IR&&next->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op2=temp->code.u.binop.op1;
+                            next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value*temp->code.u.binop.op2->u.value;
+                        }
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op1->u.value%temp->code.u.binop.op2->u.value==0){
+                        //    next->code.u.binop.op2=temp->code.u.binop.op1;
+                        //    next->code.u.binop.op1->u.value=next->code.u.binop.op1->u.value/temp->code.u.binop.op2->u.value;
+                        //}
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op2->u.value%next->code.u.binop.op1->u.value==0){
+                        //    temp->code.u.binop.result=next->code.u.binop.result;
+                        //    temp->code.u.binop.op2->u.value=temp->code.u.binop.op2->u.value/next->code.u.binop.op1->u.value;
+                        //    list_del(&(next->queue));
+                        //    code_num--;
+                        //    next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        //}
+                    }
+                    else if(next->code.u.binop.op1->kind!=CONSTANT&&next->code.u.binop.op2->kind==CONSTANT&&charge_op_equal(next->code.u.binop.op1,temp->code.u.binop.result)){
+                        if((temp->code.kind==MUL_IR&&next->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==DIV_IR)){
+                            next->code.u.binop.op1=temp->code.u.binop.op1;
+                            next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value*temp->code.u.binop.op2->u.value;
+                        }
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&next->code.u.binop.op2->u.value%temp->code.u.binop.op2->u.value==0){
+                        //    next->code.u.binop.op1=temp->code.u.binop.op1;
+                        //    next->code.u.binop.op2->u.value=next->code.u.binop.op2->u.value/temp->code.u.binop.op2->u.value;
+                        //}
+                        //else if(((next->code.kind==DIV_IR&&temp->code.kind==MUL_IR)||(temp->code.kind==DIV_IR&&next->code.kind==MUL_IR))&&temp->code.u.binop.op2->u.value%next->code.u.binop.op2->u.value==0){
+                        //    temp->code.u.binop.result=next->code.u.binop.result;
+                        //    temp->code.u.binop.op2->u.value=temp->code.u.binop.op2->u.value/next->code.u.binop.op2->u.value;
+                        //    list_del(&(next->queue));
+                        //    code_num--;
+                        //    next=list_entry(temp->queue.next,struct InterCodes ,queue);
+                        //}
+                    }
                 }
 				break;
 			case LABEL_IR:
