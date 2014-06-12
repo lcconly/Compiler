@@ -73,8 +73,8 @@ int printHex(int number5)
 
 int main() {
 	int count = 0;
-	int i = 9474;
-	while(i<9475)
+	int i = 9400;
+	while(i<9500)
 	{
 		if(isNarcissistic(i) == 1)
 		{

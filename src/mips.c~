@@ -1,0 +1,70 @@
+/*************************************************************************
+	> File Name: mips.c
+	> Author: liucheng
+	> Mail: 1035377294@qq.com 
+	> Created Time: Thu 12 Jun 2014 04:56:04 PM CST
+ ************************************************************************/
+
+#include "mips.h"
+/*mips打印函数*/
+void mips_print(char *name){
+	struct InterCodes *temp=list_entry(ir_head.next,struct InterCodes,queue);
+	FILE *fp=fopen(name,"w");
+	while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
+		switch((temp->code).kind){
+			case ASSIGN_IR:
+
+ 				break;
+			case ADD_IR:
+
+				break;
+			case SUB_IR:
+
+				break;
+			case MUL_IR:
+
+				break;
+			case DIV_IR:
+
+				break;
+			case LABEL_IR:
+
+				break;
+			case FUNC_IR:
+
+				break;
+			case GOTO_IR:	
+
+				break;
+			case IF_IR:
+
+				break;
+			case RETURN_IR:
+
+				break;
+			case DEC_IR:
+
+				break;
+			case ARG_IR:
+
+				break;
+			case CALL_IR:
+
+				break;
+			case PARAM_IR:
+
+				break;
+			case READ_IR:
+
+				break;
+			case WRITE_IR:
+
+				break;
+			default:
+				printf("InterCodes kind type!!!\n");
+				break;
+		}
+        temp=list_entry(temp->queue.next,struct InterCodes,queue);
+	}
+
+}

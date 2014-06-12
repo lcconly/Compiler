@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include"../include/semantic_analysis.h"
+#include"../include/mips.h"
 #include"../include/IR.h"
 extern int hasError;
 int sem_error=0;
@@ -25,6 +25,7 @@ int main(int argc,char** argv){
 		//show_hash_table(varList);
         if(sem_error==0){
 			list_init(&ir_head);
+			list_init(&opoff);
 			translate(root);
 			optimize();
 			printCodeToFile(argv[2]);
