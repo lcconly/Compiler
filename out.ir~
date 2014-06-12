@@ -1,124 +1,48 @@
-FUNCTION main :
-v0 := #3
-v1 := #4
-v2 := #0
-v3 := #0
-DEC v4 600
-v5 := v0 * v0
-v6 := v1 * v1
-IF #-1 != #0 GOTO label0
-GOTO label2
-LABEL label2 :
-t14 := v5 + v6
-IF t14 > #0 GOTO label0
-GOTO label1
+FUNCTION min :
+PARAM v0
+PARAM v1
+v2 := #1
+v3 := v1
+v4 := #0
 LABEL label0 :
-t24 := v0 * v0
-t25 := v1 * v1
-t22 := t24 - t25
-t23 := v5 * v6
-t20 := t22 + t23
-t21 := v0 - #8
-v2 := t20 / t21
+IF v2 < v3 GOTO label1
+GOTO label2
 LABEL label1 :
-t42 := v0 * #3
-t39 := #7 - t42
-t40 := #4 * v1
-t37 := t39 - t40
-t38 := v5 * v6
-t36 := t37 + t38
-v7 := #0 - t36
-v2 := v7 - v7
+t9 := v2 * #4
+t5 := v0 + t9
+t12 := v4 * #4
+t6 := v0 + t12
+IF *t5 < *t6 GOTO label3
+GOTO label4
 LABEL label3 :
-IF v2 < #150 GOTO label4
-GOTO label5
+v4 := v2
 LABEL label4 :
-t67 := v2 * #4
-t64 := &v4 + t67
-*t64 := #1
 v2 := v2 + #1
-GOTO label3
+GOTO label0
+LABEL label2 :
+t22 := v4 * #4
+t19 := v0 + t22
+RETURN t19
+FUNCTION main :
+DEC v5 40
+v6 := #0
+v7 := #10
 LABEL label5 :
-t79 := &v4 + #0
-t77 := *t79 + v5
-t75 := t77 - #1
-v2 := t75 - v5
+IF v6 < v7 GOTO label6
+GOTO label7
 LABEL label6 :
-t92 := v1 * v1
-t89 := v7 - t92
-t90 := v0 * v0
-t87 := t89 + t90
-t85 := #-1 * t87
-IF v2 < t85 GOTO label7
-GOTO label8
+t28 := v6 * v6
+v8 := t28 * v6
+t36 := v6 * #4
+t33 := &v5 + t36
+t40 := v8 / v7
+t39 := t40 * v7
+t37 := v8 - t39
+*t33 := t37
+v6 := v6 + #1
+GOTO label5
 LABEL label7 :
-t98 := v0 + #4
-v8 := t98 - v1
-v9 := v5
-v10 := v8 - #1
-LABEL label9 :
-t110 := v0 + v1
-t107 := t110 + #-7
-IF v9 > t107 GOTO label10
-GOTO label11
-LABEL label10 :
-v11 := #0
-t126 := v2 / #10
-t127 := t126 * #4
-t123 := &v4 + t127
-t124 := v9 * #3
-t122 := *t123 + t124
-*t123 := t122
-IF v10 == #2 GOTO label12
-GOTO label13
-LABEL label12 :
-t145 := v2 / #10
-t146 := t145 * #4
-t142 := &v4 + t146
-t150 := v9 * #3
-t143 := #2 + t150
-t141 := *t142 - t143
-*t142 := t141
-LABEL label13 :
-IF v2 > #100 GOTO label14
-GOTO label15
-LABEL label14 :
-t157 := v9 / #2
-v11 := t157 - #1
-GOTO label16
-LABEL label15 :
-t172 := v2 / #10
-t173 := t172 * #4
-t169 := &v4 + t173
-t168 := *t169 + v9
-*t169 := t168
-LABEL label16 :
-v11 := v11 - #1
-t182 := v9 / #2
-v9 := t182 - #1
-GOTO label9
-LABEL label11 :
-t186 := v1 + v3
-IF t186 < v5 GOTO label17
-GOTO label19
-LABEL label19 :
-IF v6 != #0 GOTO label17
-GOTO label18
-LABEL label17 :
-v2 := v2 + #1
-LABEL label18 :
-GOTO label6
-LABEL label8 :
-v2 := #0
-LABEL label20 :
-IF v2 < #150 GOTO label21
-GOTO label22
-LABEL label21 :
-t205 := v2 * #4
-t202 := &v4 + t205
-v3 := v3 + *t202
-v2 := v2 + #1
-GOTO label20
-LABEL label22 :
-WRITE v3
-RETURN #0
+ARG v7
+ARG &v5
+t49 := CALL min
+WRITE t49

@@ -855,13 +855,18 @@ FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
             temp->type->kind=basic;
             (temp->type->u).basic=1;
         }*/
+		bool can_return=false;
         Type *temp_type;
         if(!strcmp(root->data,"Args"))
             if(!strcmp(root->childNode[0]->data,"Exp")){
                 if((temp_type=travel_exp_tree(root->childNode[0]))!=NULL) {
                     temp=(FieldList *)malloc(sizeof(FieldList));
                     temp->type=temp_type;
+					//printf("temp_type %d\n",temp->type->kind);
                 }
+				if(root->childNode[1]==NULL)
+					can_return=true;
+				else can_return=false;
             }
         if(temp!=NULL){
             if(args==NULL){
@@ -877,6 +882,8 @@ FieldList* travel_args_tree(struct TreeNode *root,FieldList *args){
                 temp->tail=NULL;
             }
         }
+		if(can_return==true)
+			return args;
         for(i=0;i<=root->childnum;i++)
             args=travel_args_tree(root->childNode[i],args);
     }

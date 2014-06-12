@@ -596,11 +596,7 @@ void translate_Stmt(struct TreeNode *root){
             break;
         }
         case 2:{//RETURN EXP SEMI
-            Operand t1;
-            if(root->childNode[1]->childnum==3&&!strcmp(root->childNode[1]->childNode[1]->data,"LB"))
-                t1=new_temp(TEMP_MEMORY);
-            else 
-                t1=new_temp(TEMP);
+            Operand t1=new_temp(TEMP);
             translate_Exp(root->childNode[1],t1);
             insertCodes(1,gen_var(RETURN_IR,t1));
             break;
@@ -803,7 +799,7 @@ void optimize_dead_code(){
     while(temp!=list_entry(&ir_head,struct InterCodes,queue)){
         struct InterCodes *next=list_entry(temp->queue.next,struct InterCodes,queue);
 		int is_used=0;
-        if((temp->code.kind==ASSIGN_IR&&temp->code.u.assign.right->kind!=VARIABLE&&temp->code.u.assign.right->kind!=TEMP_MEMORY)||((temp->code.kind==ADD_IR||temp->code.kind==SUB_IR||temp->code.kind==MUL_IR||temp->code.kind==DIV_IR)&&(temp->code.u.binop.result->kind==TEMP)))//&&temp->code.u.binop.op1->kind!=VAR_ADDRESS&&temp->code.u.binop.op2->kind!=VAR_ADDRESS))
+        if((temp->code.kind==ASSIGN_IR&&temp->code.u.assign.right->kind!=VARIABLE&&temp->code.u.assign.right->kind!=TEMP_MEMORY)||((temp->code.kind==ADD_IR||temp->code.kind==SUB_IR||temp->code.kind==MUL_IR||temp->code.kind==DIV_IR)&&(temp->code.u.binop.result->kind==TEMP))//&&temp->code.u.binop.op1->kind!=VAR_ADDRESS&&temp->code.u.binop.op2->kind!=VAR_ADDRESS))
 			while(next!=list_entry(&ir_head,struct InterCodes,queue)){
 				switch(next->code.kind){
 					case ASSIGN_IR:

@@ -129,6 +129,8 @@ void optimize_constant_code();
 void optimize_constant_op_code();
 /*优化变量二进制运算代码*/
 void optimize_binop_code();
+/*优化memory代码*/
+//void optimize_memory_code();
 /*优化*/
 void optimize();
 #endif

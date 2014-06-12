@@ -1,6 +1,49 @@
+FUNCTION min :
+PARAM v0
+PARAM v1
+v2 := #1
+v3 := v1
+v4 := #0
+LABEL label0 :
+IF v2 < v3 GOTO label1
+GOTO label2
+LABEL label1 :
+t9 := v2 * #4
+t5 := v0 + t9
+t12 := v4 * #4
+t6 := v0 + t12
+IF *t5 < *t6 GOTO label3
+GOTO label4
+LABEL label3 :
+v4 := v2
+LABEL label4 :
+v2 := v2 + #1
+GOTO label0
+LABEL label2 :
+t22 := v4 * #4
+t19 := v0 + t22
+RETURN *t19
 FUNCTION main :
-v0 := #3
-v1 := #4
-v1 := v1 / #1
-WRITE v1
+DEC v5 40
+v6 := #0
+v7 := #10
+LABEL label5 :
+IF v6 < v7 GOTO label6
+GOTO label7
+LABEL label6 :
+t28 := v6 * v6
+v8 := t28 * v6
+t36 := v6 * #4
+t33 := &v5 + t36
+t40 := v8 / v7
+t39 := t40 * v7
+t37 := v8 - t39
+*t33 := t37
+v6 := v6 + #1
+GOTO label5
+LABEL label7 :
+ARG v7
+ARG &v5
+t49 := CALL min
+WRITE t49
 RETURN #0
