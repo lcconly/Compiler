@@ -7,6 +7,8 @@
 
 #include "../include/mips.h"
 #include "../include/IR.h"
+int a_index=0;
+int t_index=3;
 int sp=-32;
 /*设置便宜量*/
 int set_offset(Operand op){
@@ -344,22 +346,54 @@ void mips_print(char *name){
                 fprintf(fp,"   j lable%d\n",temp->code.u.op->u.lable_no);
 				break;
 			case IF_IR:
-                if(temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   li $t2,%d\n",temp->code.u.binop.op2->u.value);
-                } 
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                if(temp->code.u.if_type.op1->kind==CONSTANT){
+                    if(temp->code.u.if_type.op2->kind==CONSTANT){
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.if_type.op1->u.value);
+                        fprintf(fp,"   li $t2,%d\n",temp->code.u.if_type.op2->u.value);
+                    }
+                    else if(temp->code.u.if_type.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.if_type.op1->u.value);
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                    }
+                    else{
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.if_type.op1->u.value);
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
-                    fprintf(fp,"   li $t2,%d\n",temp->code.u.binop.op2->u.value);
+                else if(temp->code.u.if_type.op1->kind==TEMP_MEMORY){
+                    if(temp->code.u.if_type.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   li $t2,%d\n",temp->code.u.if_type.op2->u.value);
+                    }
+                    else if(temp->code.u.if_type.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                    }
                 }
                 else{
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                }
+                    if(temp->code.u.if_type.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   li $t2,%d\n",temp->code.u.if_type.op2->u.value);
+                    }
+                    else if(temp->code.u.if_type.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.if_type.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.if_type.op2));
+                    }
+                } 
                 if(!strcmp(temp->code.u.if_type.relop,"=="))
                     fprintf(fp,"   beq $t1 ,$t2 ,lable%d\n",temp->code.u.if_type.lable->u.lable_no);
 				else if(!strcmp(temp->code.u.if_type.relop,"!="))
@@ -385,9 +419,19 @@ void mips_print(char *name){
                 list_add_before(&opoff,&temp_op->queue);
 				break;
             }
-			case ARG_IR:
-
-				break;
+			case ARG_IR:{
+                int count_num=0;
+                struct InterCodes *current=temp;
+                while(current->code.kind==ARG_IR){
+                    count_num++;
+                    current=list_entry(current->queue.next,struct InterCodes,queue);
+                }
+                if(count_num>4)
+                    fprintf(fp,"   lw $t%d,%d($sp)\n",count_num-2,get_offset(temp->code.u.op));
+                else
+                    fprintf(fp,"   lw $a%d,%d($sp)\n",count_num-1,get_offset(temp->code.u.op));
+		    	break;
+            }
 			case CALL_IR:
                 fprintf(fp,"   addi $sp,$sp,%d\n",sp);
                 fprintf(fp,"   sw $ra,0($sp)\n");
@@ -395,9 +439,22 @@ void mips_print(char *name){
                 fprintf(fp,"   move $t0,$v0\n");
                 fprintf(fp,"   lw $ra,0($sp)\n");
                 fprintf(fp,"   addi $sp,$sp,%d\n",-sp);
-                set_offset(temp->code.u.call_fun.returnop);
+                fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.call_fun.returnop));
 				break;
 			case PARAM_IR:
+                if(a_index<4){
+                    fprintf(fp,"   move $t0,$a%d\n",a_index);
+                    a_index++;
+                }
+                else{
+                    fprintf(fp,"   move $t0,$t%d\n",t_index);
+                    t_index++;
+                }
+                if(list_entry(temp->queue.next,struct InterCodes,queue)->code.kind!=PARAM_IR){
+                    a_index=0;
+                    t_index=3;
+                }
+                fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.op));
 				break;
 			case READ_IR:
                 fprintf(fp,"   addi $sp,$sp,%d\n",sp);
@@ -409,7 +466,14 @@ void mips_print(char *name){
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.op));
 				break;
 			case WRITE_IR:
-                fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.op));
+                if(temp->code.u.op->kind==CONSTANT)
+                    fprintf(fp,"   li $t1,%d\n",temp->code.u.op->u.value);
+                else if(temp->code.u.op->kind==TEMP_MEMORY){
+                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.op));
+                    fprintf(fp,"   lw $t1,0($t2)\n");
+                }
+                else
+                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.op));
                 fprintf(fp,"   move $a0,$t1\n");
                 fprintf(fp,"   addi $sp,$sp,%d\n",sp);
                 fprintf(fp,"   sw $ra,0($sp)\n");

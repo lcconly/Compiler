@@ -1,11 +1,130 @@
-FUNCTION inc :
+FUNCTION power :
 PARAM v0
-t0 := v0 + #1
-RETURN t0
-FUNCTION main :
-v1 := #10
-ARG v1
-t5 := CALL inc
-v1 := t5
-WRITE v1
+PARAM v1
+v2 := #1
+LABEL label0 :
+IF v1 > #0 GOTO label1
+GOTO label2
+LABEL label1 :
+v2 := v2 * v0
+v1 := v1 - #1
+GOTO label0
+LABEL label2 :
+RETURN v2
+FUNCTION mod :
+PARAM v3
+PARAM v4
+t15 := v3 / v4
+t14 := t15 * v4
+t12 := v3 - t14
+RETURN t12
+FUNCTION getNumDigits :
+PARAM v5
+v6 := #0
+IF v5 < #0 GOTO label3
+GOTO label4
+LABEL label3 :
+RETURN #-1
+LABEL label4 :
+LABEL label5 :
+IF v5 > #0 GOTO label6
+GOTO label7
+LABEL label6 :
+v5 := v5 / #10
+v6 := v6 + #1
+GOTO label5
+LABEL label7 :
+RETURN v6
+FUNCTION isNarcissistic :
+PARAM v7
+ARG v7
+t35 := CALL getNumDigits
+v8 := t35
+v9 := #0
+v10 := v7
+LABEL label8 :
+IF v10 > #0 GOTO label9
+GOTO label10
+LABEL label9 :
+ARG #10
+ARG v10
+t41 := CALL mod
+v11 := t41
+t44 := v10 - v11
+v10 := t44 / #10
+ARG v8
+ARG v11
+t51 := CALL power
+v9 := v9 + t51
+GOTO label8
+LABEL label10 :
+IF v9 == v7 GOTO label11
+GOTO label12
+LABEL label11 :
+RETURN #1
+GOTO label13
+LABEL label12 :
 RETURN #0
+LABEL label13 :
+FUNCTION printHexDigit :
+PARAM v12
+IF v12 < #10 GOTO label14
+GOTO label15
+LABEL label14 :
+WRITE v12
+GOTO label16
+LABEL label15 :
+WRITE #0
+LABEL label16 :
+RETURN #0
+FUNCTION printHex :
+PARAM v13
+DEC v14 16
+v15 := #0
+LABEL label17 :
+IF v15 < #4 GOTO label18
+GOTO label19
+LABEL label18 :
+t68 := v15 * #4
+t65 := &v14 + t68
+ARG #16
+ARG v13
+t69 := CALL mod
+*t65 := t69
+v13 := v13 / #16
+v15 := v15 + #1
+GOTO label17
+LABEL label19 :
+v15 := #3
+LABEL label20 :
+IF v15 >= #0 GOTO label21
+GOTO label22
+LABEL label21 :
+t86 := v15 * #4
+t83 := &v14 + t86
+ARG *t83
+t82 := CALL printHexDigit
+v15 := v15 - #1
+GOTO label20
+LABEL label22 :
+RETURN #0
+FUNCTION main :
+v16 := #0
+v17 := #9400
+LABEL label23 :
+IF v17 < #9500 GOTO label24
+GOTO label25
+LABEL label24 :
+ARG v17
+t96 := CALL isNarcissistic
+IF t96 == #1 GOTO label26
+GOTO label27
+LABEL label26 :
+ARG v17
+t98 := CALL printHex
+v16 := v16 + #1
+LABEL label27 :
+v17 := v17 + #1
+GOTO label23
+LABEL label25 :
+RETURN v16
