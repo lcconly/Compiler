@@ -28,7 +28,8 @@ int main(int argc,char** argv){
 			list_init(&opoff);
 			translate(root);
 			optimize();
-			printCodeToFile(argv[2]);
+			printCodeToFile("out.ir");
+			mips_print(argv[2]);
 		}
 	}
     return 0;

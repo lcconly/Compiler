@@ -13,9 +13,9 @@ lex.yy.c:lexical.l
 
 .PHONY:run clean coredump
 run:parser
-	./parser test.cmm out.ir
+	./parser test.cmm out.s
 coredump:
 	gdb ./parser ./core
 
 clean:
-	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser core *.*~ */*.*~ *.ir
+	rm -rf lex.yy.c syntax.tab.h syntax.tab.c parser core *.*~ */*.*~ *.ir *.s

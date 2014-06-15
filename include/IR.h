@@ -27,7 +27,7 @@ struct InterCode {
 	enum { ASSIGN_IR,ADD_IR,SUB_IR,MUL_IR,DIV_IR,FUNC_IR,GOTO_IR,IF_IR,RETURN_IR,DEC_IR,ARG_IR,CALL_IR,PARAM_IR,READ_IR,WRITE_IR,LABEL_IR} kind; 
 	union {
 		struct {
-			Operand right, left;
+			Operand right, left;//!!!!后面左右用翻了！！！！！！！
 		} assign;
 		struct { 
 			Operand result, op1, op2;  
