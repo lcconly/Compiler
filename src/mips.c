@@ -97,90 +97,240 @@ void mips_print(char *name){
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.assign.right));
  				break;
 			case ADD_IR:
-                if(temp->code.u.binop.op1->kind==VAR_ADDRESS&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   la $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   sub $t0,$t1,$2\n");
+                if(temp->code.u.binop.op1->kind==VAR_ADDRESS){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   la $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   sub $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   la $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   la $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==VAR_ADDRESS&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   la $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   sub $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                else if(temp->code.u.binop.op1->kind==TEMP_MEMORY){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,0($t1)\n");
+                        fprintf(fp,"   addi $t0,$t2,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   add $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   add $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind!=VAR_ADDRESS&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   addi $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                else if(temp->code.u.binop.op1->kind==CONSTANT){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   addi $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   addi $t0,$t2,%d\n",temp->code.u.binop.op1->u.value);
+                    }
+                    else{
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   addi $t0,$t2,%d\n",temp->code.u.binop.op1->u.value);
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   addi $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
-                }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   addi $t0,%d,$t1\n",temp->code.u.binop.op1->u.value);
-                }
-                else{
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   add $t0,$t1,$t2\n");
-                }
+                else {
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   addi $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   add $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   add $t0,$t1,$t2\n");
+                    }
+                } 
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.binop.result));
 				break;
 			case SUB_IR:
-                if(temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   sub $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                if(temp->code.u.binop.op1->kind==CONSTANT){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   sub $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   sub $t0,%d,$t1\n",temp->code.u.binop.op1->u.value);
+                else if(temp->code.u.binop.op1->kind==TEMP_MEMORY){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t2)\n");
+                        fprintf(fp,"   sub $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT)
-                    fprintf(fp,"   sub $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
                 else{
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   sub $t0,$t1,$t2\n");
-                }
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   sub $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   sub $t0,$t1,$t2\n");
+                    }
+                } 
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.binop.result));
 				break;
 			case MUL_IR: 
-                if(temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   mul $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                if(temp->code.u.binop.op1->kind==CONSTANT){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   mul $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t1,0($t2)\n");
+                        fprintf(fp,"   mul $t0,$t1,%d\n",temp->code.u.binop.op1->u.value);
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   mul $t0,$t1,%d\n",temp->code.u.binop.op1->u.value);
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   mul $t0,%d,$t1\n",temp->code.u.binop.op1->u.value);
+                else if(temp->code.u.binop.op1->kind==TEMP_MEMORY){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t2)\n");
+                        fprintf(fp,"   mul $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   mul $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   mul $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT)
-                    fprintf(fp,"   mul $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
                 else{
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   mul $t0,$t1,$t2\n");
-                }
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   mul $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   mul $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   mul $t0,$t1,$t2\n");
+                    }
+                } 
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.binop.result));
 				break;
 			case DIV_IR:
-                if(temp->code.u.binop.op1->kind!=CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   li $t2,%d\n",temp->code.u.binop.op2->u.value);
-                    fprintf(fp,"   div $t1,$t2\n");
+                if(temp->code.u.binop.op1->kind==CONSTANT){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   div $t0,%d,%d\n",temp->code.u.binop.op1->u.value,temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind!=CONSTANT){
-                    fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   div $t1,$t2\n");
+                else if(temp->code.u.binop.op1->kind==TEMP_MEMORY){
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t2)\n");
+                        fprintf(fp,"   div $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t1,0($t3)\n");
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
                 }
-                else if(temp->code.u.binop.op1->kind==CONSTANT&&temp->code.u.binop.op2->kind==CONSTANT){
-                    fprintf(fp,"   li $t1,%d\n",temp->code.u.binop.op1->u.value);
-                    fprintf(fp,"   li $t2,%d\n",temp->code.u.binop.op2->u.value);
-                    fprintf(fp,"   div $t1,$t2\n");
-                }
-                else {
-                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
-                    fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
-                    fprintf(fp,"   div $t1,$t2\n");
-                }
+                else{
+                    if(temp->code.u.binop.op2->kind==CONSTANT){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   div $t0,$t1,%d\n",temp->code.u.binop.op2->u.value);
+                    }
+                    else if(temp->code.u.binop.op2->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   lw $t2,0($t3)\n");
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
+                    else{
+                        fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.binop.op1));
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.binop.op2));
+                        fprintf(fp,"   div $t0,$t1,$t2\n");
+                    }
+                }      
                 fprintf(fp,"   mflo $t0\n");
                 fprintf(fp,"   sw $t0,%d($sp)\n",set_offset(temp->code.u.binop.result));
 				break;

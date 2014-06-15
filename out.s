@@ -19,51 +19,29 @@ write:
    syscall
    move $v0, $0
    jr $ra
+inc:
+   lw $t1,-1($sp)
+   addi $t0,$t1,1
+   sw $t0,-32($sp)
+   move $v0,$t0
+   jr $ra
 main:
-   la $t1,-32($sp)
-   sub $t0,$t1,0
-   sw $t0,-44($sp)
-   lw $t0,-44($sp)
-   li $t1,5
-   sw $t1,0($t0)
-   sw $t0,-44($sp)
-   la $t1,-32($sp)
-   sub $t0,$t1,4
-   sw $t0,-48($sp)
-   lw $t0,-48($sp)
-   li $t1,8
-   sw $t1,0($t0)
-   sw $t0,-48($sp)
-   la $t1,-32($sp)
-   sub $t0,$t1,8
-   sw $t0,-52($sp)
-   lw $t0,-52($sp)
-   li $t1,6
-   sw $t1,0($t0)
-   sw $t0,-52($sp)
-   la $t1,-32($sp)
-   sub $t0,$t1,0
-   sw $t0,-56($sp)
-   la $t1,-32($sp)
-   sub $t0,$t1,4
-   sw $t0,-60($sp)
-   lw $t1,-56($sp)
-   lw $t2,-60($sp)
-   add $t0,$t1,$t2
-   sw $t0,-64($sp)
-   la $t1,-32($sp)
-   sub $t0,$t1,8
-   sw $t0,-68($sp)
-   lw $t1,-64($sp)
-   lw $t2,-68($sp)
-   add $t0,$t1,$t2
-   sw $t0,-72($sp)
-   lw $t1,-72($sp)
+   li $t0,10
+   sw $t0,-36($sp)
+   addi $sp,$sp,-40
+   sw $ra,0($sp)
+   jal inc
+   move $t0,$v0
+   lw $ra,0($sp)
+   addi $sp,$sp,40
+   lw $t0,-40($sp)
+   sw $t0,-36($sp)
+   lw $t1,-36($sp)
    move $a0,$t1
-   addi $sp,$sp,-76
+   addi $sp,$sp,-44
    sw $ra,0($sp)
    jal write
    lw $ra,0($sp)
-   addi $sp,$sp,76
+   addi $sp,$sp,44
    move $v0,$t0
    jr $ra
