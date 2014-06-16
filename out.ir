@@ -1,62 +1,76 @@
-FUNCTION main :
-v0 := #1
-v1 := #3
-v2 := #13
-v3 := v0 + v1
-t25 := v0 + v1
-v4 := t25 + v2
-t30 := v0 + v1
-v5 := t30 + v2
-v6 := #42
-v7 := #0
-t44 := v0 + v1
-t42 := t44 + v2
-t40 := t42 - v3
-t38 := t40 - v4
-v5 := t38 + v5
+FUNCTION sort :
+PARAM v0
+DEC v1 400
+v2 := #0
+v3 := #0
 LABEL label0 :
-t49 := v1 - v0
-IF v5 > t49 GOTO label1
+IF v2 < v0 GOTO label1
 GOTO label2
 LABEL label1 :
-t58 := v5 - v1
-t59 := v0 * #2
-t56 := t58 + t59
-t57 := v2 * v3
-t54 := t56 + t57
-v8 := t54 - v5
-t75 := v7 * #4
-t72 := v6 + t75
-v6 := t72 + #12
-v7 := v7 + #1
-t88 := v7 / #3
-t87 := t88 * #3
-t84 := v7 - t87
-t94 := v0 - v0
-t92 := t94 + v1
-t85 := t92 - v1
-IF t84 == t85 GOTO label3
-GOTO label4
-LABEL label3 :
-v5 := v5 + #2
-LABEL label4 :
-v5 := v5 - #1
+t8 := v2 * #4
+t5 := &v1 + t8
+t11 := v2 * #2
+t9 := #100 - t11
+*t5 := t9
+v2 := v2 + #1
 GOTO label0
 LABEL label2 :
-WRITE v6
-v7 := v6
-LABEL label5 :
-IF v6 >= #1222 GOTO label6
-GOTO label7
-LABEL label6 :
-v7 := v6 + #1024
-v6 := v6 - #1
-v7 := v6
+v2 := #0
+LABEL label3 :
+IF v2 < v0 GOTO label4
 GOTO label5
+LABEL label4 :
+v3 := #0
+LABEL label6 :
+IF v3 < v2 GOTO label7
+GOTO label8
 LABEL label7 :
-WRITE v6
-v0 := v0 + v1
-v1 := v0 + v1
-v2 := v0 + v1
-WRITE v2
+t30 := v2 * #4
+t26 := &v1 + t30
+t33 := v3 * #4
+t27 := &v1 + t33
+IF *t26 < *t27 GOTO label9
+GOTO label10
+LABEL label9 :
+t37 := v2 * #4
+t34 := &v1 + t37
+v4 := *t34
+t42 := v2 * #4
+t39 := &v1 + t42
+t46 := v3 * #4
+t43 := &v1 + t46
+*t39 := *t43
+t51 := v3 * #4
+t48 := &v1 + t51
+*t48 := v4
+LABEL label10 :
+v3 := v3 + #1
+GOTO label6
+LABEL label8 :
+v2 := v2 + #1
+GOTO label3
+LABEL label5 :
+v2 := #0
+LABEL label11 :
+IF v2 < v0 GOTO label12
+GOTO label13
+LABEL label12 :
+t69 := v2 * #4
+t66 := &v1 + t69
+WRITE *t66
+v2 := v2 + #1
+GOTO label11
+LABEL label13 :
+RETURN #0
+FUNCTION main :
+READ v5
+IF v5 >= #100 GOTO label14
+GOTO label15
+LABEL label14 :
+WRITE #-1
+GOTO label16
+LABEL label15 :
+ARG v5
+t80 := CALL sort
+LABEL label16 :
 RETURN #0

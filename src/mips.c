@@ -90,6 +90,11 @@ void mips_print(char *name){
                         fprintf(fp,"   lw $t0,%d($sp)\n",get_offset(temp->code.u.assign.right));
                         fprintf(fp,"   li $t1,%d\n",temp->code.u.assign.left->u.value);
                     }
+                    else if(temp->code.u.assign.left->kind==TEMP_MEMORY){
+                        fprintf(fp,"   lw $t0,%d($sp)\n",get_offset(temp->code.u.assign.right));
+						fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.assign.left));
+						fprintf(fp,"   lw $t1,0($t2)\n");
+                    }
                     else{
                         fprintf(fp,"   lw $t0,%d($sp)\n",get_offset(temp->code.u.assign.right));
                         fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.assign.left));
