@@ -10,7 +10,8 @@ int power(int base1, int p1) {
 
 int mod(int number2, int m2)
 {
-	return number2 - number2 / m2 * m2;
+	int a=number2-number2/m2*m2;
+	return a;
 }
 
 int getNumDigits(int number3)
@@ -57,6 +58,7 @@ int printHex(int number5)
 {
 	int a5[4];
 	int j5 = 0;
+	int k;
 	while(j5<4) {
 		a5[j5] = mod(number5, 16);
 		number5 = number5 / 16;
@@ -64,7 +66,8 @@ int printHex(int number5)
 	}
 	j5 = 3;
 	while(j5>=0) {
-		printHexDigit(a5[j5]);
+		k=a5[j5];
+		printHexDigit(k);
 		j5=j5-1;
 	}
 	return 0;

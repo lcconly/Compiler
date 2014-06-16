@@ -408,6 +408,15 @@ void mips_print(char *name){
                     fprintf(fp,"   ble $t1 ,$t2 ,lable%d\n",temp->code.u.if_type.lable->u.lable_no);
                 break;
 			case RETURN_IR:
+				if(temp->code.u.op->kind==CONSTANT)
+                    fprintf(fp,"   li $t0,%d\n",temp->code.u.op->u.value);
+				else if(temp->code.u.op->kind==TEMP_MEMORY){
+                    fprintf(fp,"   lw $t1,%d($sp)\n",get_offset(temp->code.u.op));
+                    fprintf(fp,"   lw $t0,0($t1)\n");
+				}
+				else {
+					fprintf(fp,"   lw $t0,%d($sp)\n",get_offset(temp->code.u.op));
+				}
                 fprintf(fp,"   move $v0,$t0\n");
                 fprintf(fp,"   jr $ra\n");
 				break;
@@ -426,11 +435,39 @@ void mips_print(char *name){
                     count_num++;
                     current=list_entry(current->queue.next,struct InterCodes,queue);
                 }
-                if(count_num>4)
-                    fprintf(fp,"   lw $t%d,%d($sp)\n",count_num-2,get_offset(temp->code.u.op));
-                else
-                    fprintf(fp,"   lw $a%d,%d($sp)\n",count_num-1,get_offset(temp->code.u.op));
-		    	break;
+                if(count_num>4){
+                    if(temp->code.u.op->kind==CONSTANT)
+                        fprintf(fp,"   li $t%d,%d\n",count_num-2,temp->code.u.op->u.value);
+                    else if(temp->code.u.op->kind==TEMP_MEMORY){
+                        if(count_num-2!=2){
+                        fprintf(fp,"   lw $t2,%d($sp)\n",get_offset(temp->code.u.op));
+                        fprintf(fp,"   lw $t%d,0($t2)\n",count_num-2);
+                        }
+                        else{
+                        fprintf(fp,"   lw $t3,%d($sp)\n",get_offset(temp->code.u.op));
+                        fprintf(fp,"   lw $t%d,0($t3)\n",count_num-2);
+                        }
+                    }
+                    else
+                        fprintf(fp,"   lw $t%d,%d($sp)\n",count_num-2,get_offset(temp->code.u.op));
+                }
+                else{
+                    if(temp->code.u.op->kind==CONSTANT)
+                        fprintf(fp,"   li $a%d,%d\n",count_num-1,temp->code.u.op->u.value);
+                    else if(temp->code.u.op->kind==TEMP_MEMORY){
+                        if(count_num-2!=2){
+                        fprintf(fp,"   lw $a2,%d($sp)\n",get_offset(temp->code.u.op));
+                        fprintf(fp,"   lw $a%d,0($a2)\n",count_num-1);
+						}
+						else{
+                        fprintf(fp,"   lw $a1,%d($sp)\n",get_offset(temp->code.u.op));
+                        fprintf(fp,"   lw $a%d,0($a1)\n",count_num-1);	
+						}
+					}
+                    else
+                        fprintf(fp,"   lw $a%d,%d($sp)\n",count_num-1,get_offset(temp->code.u.op));
+		    	}
+                break;
             }
 			case CALL_IR:
                 fprintf(fp,"   addi $sp,$sp,%d\n",sp);

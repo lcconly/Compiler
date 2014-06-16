@@ -1,130 +1,62 @@
-FUNCTION power :
-PARAM v0
-PARAM v1
-v2 := #1
+FUNCTION main :
+v0 := #1
+v1 := #3
+v2 := #13
+v3 := v0 + v1
+t25 := v0 + v1
+v4 := t25 + v2
+t30 := v0 + v1
+v5 := t30 + v2
+v6 := #42
+v7 := #0
+t44 := v0 + v1
+t42 := t44 + v2
+t40 := t42 - v3
+t38 := t40 - v4
+v5 := t38 + v5
 LABEL label0 :
-IF v1 > #0 GOTO label1
+t49 := v1 - v0
+IF v5 > t49 GOTO label1
 GOTO label2
 LABEL label1 :
-v2 := v2 * v0
-v1 := v1 - #1
-GOTO label0
-LABEL label2 :
-RETURN v2
-FUNCTION mod :
-PARAM v3
-PARAM v4
-t15 := v3 / v4
-t14 := t15 * v4
-t12 := v3 - t14
-RETURN t12
-FUNCTION getNumDigits :
-PARAM v5
-v6 := #0
-IF v5 < #0 GOTO label3
+t58 := v5 - v1
+t59 := v0 * #2
+t56 := t58 + t59
+t57 := v2 * v3
+t54 := t56 + t57
+v8 := t54 - v5
+t75 := v7 * #4
+t72 := v6 + t75
+v6 := t72 + #12
+v7 := v7 + #1
+t88 := v7 / #3
+t87 := t88 * #3
+t84 := v7 - t87
+t94 := v0 - v0
+t92 := t94 + v1
+t85 := t92 - v1
+IF t84 == t85 GOTO label3
 GOTO label4
 LABEL label3 :
-RETURN #-1
+v5 := v5 + #2
 LABEL label4 :
+v5 := v5 - #1
+GOTO label0
+LABEL label2 :
+WRITE v6
+v7 := v6
 LABEL label5 :
-IF v5 > #0 GOTO label6
+IF v6 >= #1222 GOTO label6
 GOTO label7
 LABEL label6 :
-v5 := v5 / #10
-v6 := v6 + #1
+v7 := v6 + #1024
+v6 := v6 - #1
+v7 := v6
 GOTO label5
 LABEL label7 :
-RETURN v6
-FUNCTION isNarcissistic :
-PARAM v7
-ARG v7
-t35 := CALL getNumDigits
-v8 := t35
-v9 := #0
-v10 := v7
-LABEL label8 :
-IF v10 > #0 GOTO label9
-GOTO label10
-LABEL label9 :
-ARG #10
-ARG v10
-t41 := CALL mod
-v11 := t41
-t44 := v10 - v11
-v10 := t44 / #10
-ARG v8
-ARG v11
-t51 := CALL power
-v9 := v9 + t51
-GOTO label8
-LABEL label10 :
-IF v9 == v7 GOTO label11
-GOTO label12
-LABEL label11 :
-RETURN #1
-GOTO label13
-LABEL label12 :
+WRITE v6
+v0 := v0 + v1
+v1 := v0 + v1
+v2 := v0 + v1
+WRITE v2
 RETURN #0
-LABEL label13 :
-FUNCTION printHexDigit :
-PARAM v12
-IF v12 < #10 GOTO label14
-GOTO label15
-LABEL label14 :
-WRITE v12
-GOTO label16
-LABEL label15 :
-WRITE #0
-LABEL label16 :
-RETURN #0
-FUNCTION printHex :
-PARAM v13
-DEC v14 16
-v15 := #0
-LABEL label17 :
-IF v15 < #4 GOTO label18
-GOTO label19
-LABEL label18 :
-t68 := v15 * #4
-t65 := &v14 + t68
-ARG #16
-ARG v13
-t69 := CALL mod
-*t65 := t69
-v13 := v13 / #16
-v15 := v15 + #1
-GOTO label17
-LABEL label19 :
-v15 := #3
-LABEL label20 :
-IF v15 >= #0 GOTO label21
-GOTO label22
-LABEL label21 :
-t86 := v15 * #4
-t83 := &v14 + t86
-ARG *t83
-t82 := CALL printHexDigit
-v15 := v15 - #1
-GOTO label20
-LABEL label22 :
-RETURN #0
-FUNCTION main :
-v16 := #0
-v17 := #9400
-LABEL label23 :
-IF v17 < #9500 GOTO label24
-GOTO label25
-LABEL label24 :
-ARG v17
-t96 := CALL isNarcissistic
-IF t96 == #1 GOTO label26
-GOTO label27
-LABEL label26 :
-ARG v17
-t98 := CALL printHex
-v16 := v16 + #1
-LABEL label27 :
-v17 := v17 + #1
-GOTO label23
-LABEL label25 :
-RETURN v16
